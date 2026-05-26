@@ -594,7 +594,6 @@ function LeadSection() {
           <input name="phone" placeholder="010-0000-0000" required inputMode="tel" />
         </label>
         <div className="schedule-field">
-          <span className="schedule-title">방문 일정</span>
           <div className="schedule-grid">
             <label>
               방문 날짜
