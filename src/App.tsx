@@ -624,10 +624,26 @@ function LifeSection() {
 function UnitPlan() {
   const [selected, setSelected] = useState<UnitKey>("84A");
   const [isPlanVisible, setIsPlanVisible] = useState(false);
+  const [isLoftDetailVisible, setIsLoftDetailVisible] = useState(false);
   const unitKeys = useMemo(() => unitOrder, []);
   const unit = unitPlans[selected];
 
+  useEffect(() => {
+    setIsLoftDetailVisible(false);
+
+    if (!isPlanVisible || !unit.loftDetailImage) {
+      return undefined;
+    }
+
+    const intervalId = window.setInterval(() => {
+      setIsLoftDetailVisible((visible) => !visible);
+    }, 3000);
+
+    return () => window.clearInterval(intervalId);
+  }, [isPlanVisible, unit.loftDetailImage]);
+
   const handleShowPlan = () => {
+    setIsLoftDetailVisible(false);
     setIsPlanVisible(true);
     window.requestAnimationFrame(() => {
       document.getElementById("unit-plan-detail")?.scrollIntoView({ behavior: "smooth", block: "nearest" });
@@ -649,6 +665,7 @@ function UnitPlan() {
               onClick={() => {
                 setSelected(key);
                 setIsPlanVisible(false);
+                setIsLoftDetailVisible(false);
               }}
               role="tab"
               aria-selected={key === selected}
@@ -680,12 +697,22 @@ function UnitPlan() {
             {isPlanVisible ? (
               unit.loftDetailImage ? (
                 <figure
-                  className="unit-plan-hover"
-                  tabIndex={0}
-                  aria-label={`${unit.label} 평면도 및 다락 상세정보`}
+                  className={`unit-plan-cycle ${isLoftDetailVisible ? "show-loft" : ""}`}
+                  aria-label={`${unit.label} ${isLoftDetailVisible ? "다락 상세정보" : "기본 평면도"} 자동 전환`}
+                  aria-live="polite"
                 >
-                  <img className="unit-plan-main" src={unit.image} alt={`${unit.label} 기본 평면도`} />
-                  <img className="unit-plan-loft" src={unit.loftDetailImage} alt={`${unit.label} 다락 상세정보`} />
+                  <img
+                    className="unit-plan-main"
+                    src={unit.image}
+                    alt={`${unit.label} 기본 평면도`}
+                    aria-hidden={isLoftDetailVisible}
+                  />
+                  <img
+                    className="unit-plan-loft"
+                    src={unit.loftDetailImage}
+                    alt={`${unit.label} 다락 상세정보`}
+                    aria-hidden={!isLoftDetailVisible}
+                  />
                   <figcaption>
                     <span className="main-label">기본 평면도</span>
                     <span className="loft-label">다락 상세정보</span>
