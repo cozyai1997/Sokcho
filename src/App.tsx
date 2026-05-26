@@ -127,77 +127,77 @@ const unitPlans: Record<
     title: "실사용 약 122.18㎡ 기본형",
     body: "3층 배치, 전용 84.96㎡에 발코니 서비스 면적을 더한 실속형 타입입니다.",
     households: "총 17세대",
-    image: "/assets/unit-84a-plan.jpg",
+    image: "/assets/unit-84a-pdf.jpg",
   },
   "84B": {
     label: "84B",
     title: "실사용 약 131.51㎡ 테라스형",
     body: "2층 배치, 발코니와 테라스 서비스 면적을 함께 누리는 확장감 있는 타입입니다.",
     households: "총 17세대",
-    image: "/assets/unit-84b-plan.jpg",
+    image: "/assets/unit-84b-pdf.jpg",
   },
   "84C": {
     label: "84C",
     title: "실사용 약 132.33㎡ 테라스형",
     body: "2층 일부 세대에 계획된 희소 타입으로 테라스 활용도를 높인 평면입니다.",
     households: "총 2세대",
-    image: "/assets/unit-84b-plan.jpg",
+    image: "/assets/unit-84c-pdf.jpg",
   },
   "84D": {
     label: "84D",
     title: "실사용 약 140.98㎡ 와이드형",
     body: "3층 배치, 넓은 테라스 서비스 면적으로 여유로운 외부공간을 더했습니다.",
     households: "총 27세대",
-    image: "/assets/unit-84b-plan.jpg",
+    image: "/assets/unit-84d-pdf.jpg",
   },
   "84E": {
     label: "84E",
     title: "실사용 약 241.64㎡ 다락 특화형",
     body: "3~4층 배치, 테라스와 다락을 모두 더한 대표 복층 특화 타입입니다.",
     households: "총 46세대",
-    image: "/assets/unit-84e-loft.jpg",
+    image: "/assets/unit-84e-pdf.jpg",
   },
   "84F": {
     label: "84F",
     title: "실사용 약 116.23㎡ 저층형",
     body: "1~3층에 고르게 배치된 타입으로 실용적인 발코니 서비스 면적을 갖췄습니다.",
     households: "총 14세대",
-    image: "/assets/unit-84a-plan.jpg",
+    image: "/assets/unit-84f-pdf.jpg",
   },
   "84G": {
     label: "84G",
     title: "실사용 약 224.68㎡ 다락 특화형",
     body: "3~4층 배치, 테라스와 다락이 더해져 입체적인 라이프스타일을 담는 타입입니다.",
     households: "총 5세대",
-    image: "/assets/unit-84e-loft.jpg",
+    image: "/assets/unit-84g-pdf.jpg",
   },
   "93": {
     label: "93",
     title: "실사용 약 132.64㎡ 중대형",
     body: "1층 배치, 전용 93.68㎡에 발코니 서비스 면적을 더한 여유형 타입입니다.",
     households: "총 19세대",
-    image: "/assets/unit-98-plan.jpg",
+    image: "/assets/unit-93-pdf.jpg",
   },
   "98": {
     label: "98",
     title: "실사용 약 162.30㎡ 테라스형",
     body: "2층 배치, 넓어진 주거 면적과 테라스 서비스 면적이 조화를 이루는 타입입니다.",
     households: "총 27세대",
-    image: "/assets/unit-98-plan.jpg",
+    image: "/assets/unit-98-pdf.jpg",
   },
   "101A": {
     label: "101A",
     title: "실사용 약 146.05㎡ 대형 타입",
     body: "1층 배치, 전용 101.31㎡ 기반의 여유로운 공간감과 서비스 면적을 갖췄습니다.",
     households: "총 27세대",
-    image: "/assets/unit-101-plan.jpg",
+    image: "/assets/unit-101a-pdf.jpg",
   },
   "101B": {
     label: "101B",
     title: "실사용 약 165.64㎡ 대형 타입",
     body: "1층 배치, 전용 101.30㎡에 넓은 테라스 서비스 면적을 더한 타입입니다.",
     households: "총 27세대",
-    image: "/assets/unit-101-plan.jpg",
+    image: "/assets/unit-101b-pdf.jpg",
   },
 };
 
@@ -520,8 +520,16 @@ function LifeSection() {
 
 function UnitPlan() {
   const [selected, setSelected] = useState<UnitKey>("84A");
+  const [isPlanVisible, setIsPlanVisible] = useState(false);
   const unitKeys = useMemo(() => unitOrder, []);
   const unit = unitPlans[selected];
+
+  const handleShowPlan = () => {
+    setIsPlanVisible(true);
+    window.requestAnimationFrame(() => {
+      document.getElementById("unit-plan-detail")?.scrollIntoView({ behavior: "smooth", block: "nearest" });
+    });
+  };
 
   return (
     <section className="section unit" id="unit">
@@ -535,7 +543,10 @@ function UnitPlan() {
             <button
               key={key}
               className={key === selected ? "active" : ""}
-              onClick={() => setSelected(key)}
+              onClick={() => {
+                setSelected(key);
+                setIsPlanVisible(false);
+              }}
               role="tab"
               aria-selected={key === selected}
             >
@@ -549,12 +560,29 @@ function UnitPlan() {
             <h3>{unit.label} TYPE</h3>
             <p>{unit.title}</p>
             <small>{unit.body}</small>
-            <button className="link-button" onClick={() => scrollToHash("#lead")}>
-              평면 상담하기 <ChevronRight size={16} />
+            <button
+              className="link-button"
+              onClick={handleShowPlan}
+              aria-controls="unit-plan-detail"
+              aria-expanded={isPlanVisible}
+            >
+              상세보기 <ChevronRight size={16} />
             </button>
           </div>
-          <div className="unit-image">
-            <img src={unit.image} alt={`${unit.label} 평면도`} />
+          <div
+            className={`unit-image ${isPlanVisible ? "is-visible" : "is-placeholder"}`}
+            id="unit-plan-detail"
+            aria-label={isPlanVisible ? `${unit.label} 평면도` : `${unit.label} 세대 평면 정보`}
+          >
+            {isPlanVisible ? (
+              <img src={unit.image} alt={`${unit.label} 평면도`} />
+            ) : (
+              <div className="unit-placeholder">
+                <House size={44} />
+                <strong>{unit.label} TYPE</strong>
+                <span>세대 평면 정보</span>
+              </div>
+            )}
           </div>
         </div>
       </div>
