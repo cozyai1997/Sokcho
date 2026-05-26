@@ -318,43 +318,45 @@ a {
 
 .summary-metrics {
   display: grid;
-  gap: 12px;
-  grid-template-columns: 0.95fr 0.85fr 1.25fr 0.95fr;
-  margin-top: 38px;
+  gap: 10px;
+  grid-template-columns: 1fr 0.82fr 1.32fr 1fr;
+  margin-top: 34px;
 }
 
 .summary-metrics div {
-  border: 1px solid var(--line);
-  border-radius: 8px;
+  background: linear-gradient(180deg, #fff 0%, #fbfdfe 100%);
+  border: 1px solid #dce5ea;
+  border-radius: 10px;
+  box-shadow: 0 12px 28px rgba(7, 42, 70, 0.06);
   display: flex;
   flex-direction: column;
   justify-content: center;
-  min-height: 132px;
-  padding: 28px 18px 24px;
+  min-height: 118px;
+  padding: 24px 16px 22px;
   text-align: center;
 }
 
 .summary-metrics div + div {
-  border-left: 1px solid var(--line);
+  border-left: 1px solid #dce5ea;
 }
 
 .summary-metrics strong {
   color: var(--gold);
   display: block;
   font-family: inherit;
-  font-size: clamp(26px, 2.4vw, 36px);
-  font-weight: 900;
+  font-size: clamp(26px, 2.2vw, 34px);
+  font-weight: 850;
   letter-spacing: 0;
-  line-height: 1;
+  line-height: 0.98;
   white-space: nowrap;
 }
 
 .summary-metrics span {
   color: #526578;
   display: block;
-  font-size: 14px;
-  font-weight: 800;
-  margin-top: 14px;
+  font-size: 13px;
+  font-weight: 850;
+  margin-top: 12px;
 }
 
 .summary-media {
@@ -1679,17 +1681,17 @@ a {
   }
 
   .summary-metrics div {
-    min-height: 116px;
-    padding: 23px 12px 20px;
+    min-height: 104px;
+    padding: 20px 12px 18px;
   }
 
   .summary-metrics strong {
-    font-size: 27px;
+    font-size: 25px;
   }
 
   .summary-metrics span {
-    font-size: 13px;
-    margin-top: 11px;
+    font-size: 12px;
+    margin-top: 9px;
   }
 
   .summary-media,
