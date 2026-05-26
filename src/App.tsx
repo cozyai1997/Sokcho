@@ -60,6 +60,7 @@ type UnitPlanInfo = {
   body: string;
   households: string;
   image: string;
+  loftDetailImage?: string;
   summary: UnitSummaryItem[];
 };
 
@@ -200,6 +201,7 @@ const unitPlans: Record<UnitKey, UnitPlanInfo> = {
     body: "3~4층 배치, 테라스와 다락을 모두 더한 대표 복층 특화 타입입니다.",
     households: "총 46세대",
     image: "/assets/unit-84e-pdf.jpg?v=20260526-top-safe",
+    loftDetailImage: "/assets/unit-84e-loft-detail.jpg?v=20260526-loft-detail",
     summary: [
       { label: "층", value: "3~4층" },
       { label: "세대수", value: "46세대" },
@@ -230,6 +232,7 @@ const unitPlans: Record<UnitKey, UnitPlanInfo> = {
     body: "3~4층 배치, 테라스와 다락이 더해져 입체적인 라이프스타일을 담는 타입입니다.",
     households: "총 5세대",
     image: "/assets/unit-84g-pdf.jpg?v=20260526-top-safe",
+    loftDetailImage: "/assets/unit-84g-loft-detail.jpg?v=20260526-loft-detail",
     summary: [
       { label: "층", value: "3~4층" },
       { label: "세대수", value: "5세대" },
@@ -675,7 +678,22 @@ function UnitPlan() {
             aria-label={isPlanVisible ? `${unit.label} 평면도` : `${unit.label} 세대 평면 정보`}
           >
             {isPlanVisible ? (
-              <img src={unit.image} alt={`${unit.label} 평면도`} />
+              unit.loftDetailImage ? (
+                <figure
+                  className="unit-plan-hover"
+                  tabIndex={0}
+                  aria-label={`${unit.label} 평면도 및 다락 상세정보`}
+                >
+                  <img className="unit-plan-main" src={unit.image} alt={`${unit.label} 기본 평면도`} />
+                  <img className="unit-plan-loft" src={unit.loftDetailImage} alt={`${unit.label} 다락 상세정보`} />
+                  <figcaption>
+                    <span className="main-label">기본 평면도</span>
+                    <span className="loft-label">다락 상세정보</span>
+                  </figcaption>
+                </figure>
+              ) : (
+                <img src={unit.image} alt={`${unit.label} 평면도`} />
+              )
             ) : (
               <div className="unit-placeholder">
                 <div className="unit-summary-head">
