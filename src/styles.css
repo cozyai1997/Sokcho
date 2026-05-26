@@ -1428,48 +1428,107 @@ a {
 }
 
 .floating-quick {
-  bottom: 34px;
-  display: grid;
-  gap: 16px;
-  justify-items: end;
+  align-items: flex-end;
+  bottom: 30px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
   position: fixed;
   right: 30px;
   z-index: 20;
 }
 
-.floating-quick button,
-.floating-quick a {
+.floating-expand {
+  align-items: flex-end;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  opacity: 0;
+  pointer-events: none;
+  transform: translateY(12px);
+  transition: opacity 180ms ease, transform 180ms ease;
+}
+
+.floating-quick.is-open .floating-expand {
+  opacity: 1;
+  pointer-events: auto;
+  transform: translateY(0);
+}
+
+.floating-action,
+.floating-toggle,
+.floating-reservation {
   align-items: center;
+  cursor: pointer;
+  display: inline-flex;
+  justify-content: center;
+  transition: transform 180ms ease, box-shadow 180ms ease, background-color 180ms ease;
+}
+
+.floating-action {
+  background: rgba(255, 255, 255, 0.96);
+  border: 1px solid rgba(9, 45, 73, 0.12);
+  border-radius: 999px;
+  box-shadow: 0 15px 34px rgba(3, 29, 51, 0.22);
+  color: var(--navy);
+  gap: 8px;
+  min-height: 52px;
+  min-width: 106px;
+  padding: 0 16px 0 14px;
+}
+
+.floating-action span {
+  font-size: 14px;
+  font-weight: 950;
+  line-height: 1;
+}
+
+.floating-action:hover {
+  background: #063f67;
+  box-shadow: 0 18px 40px rgba(3, 29, 51, 0.3);
+  color: #fff;
+  transform: translateY(-2px);
+}
+
+.floating-toggle {
   background: var(--navy);
-  border: 2px solid rgba(255, 255, 255, 0.72);
+  border: 2px solid rgba(255, 255, 255, 0.78);
   border-radius: 50%;
   box-shadow: 0 18px 42px rgba(3, 29, 51, 0.34);
   color: #fff;
-  cursor: pointer;
-  display: inline-flex;
-  height: 64px;
-  justify-content: center;
-  transition: transform 180ms ease, box-shadow 180ms ease, background-color 180ms ease;
-  width: 64px;
+  height: 66px;
+  width: 66px;
 }
 
-.floating-quick button:hover,
-.floating-quick a:hover {
+.floating-toggle:hover,
+.floating-quick.is-open .floating-toggle {
   background: #063f67;
   box-shadow: 0 22px 48px rgba(3, 29, 51, 0.42);
   transform: translateY(-2px);
 }
 
+.floating-share-status {
+  background: rgba(5, 37, 61, 0.94);
+  border-radius: 999px;
+  box-shadow: 0 12px 28px rgba(3, 29, 51, 0.24);
+  color: #fff;
+  font-size: 13px;
+  font-weight: 900;
+  padding: 9px 13px;
+  white-space: nowrap;
+}
+
 .floating-reservation {
   animation: reservationPulse 2.4s ease-in-out infinite;
-  background: linear-gradient(135deg, var(--navy), #08466f) !important;
-  border-color: rgba(221, 169, 85, 0.94) !important;
-  border-radius: 999px !important;
+  background: linear-gradient(135deg, var(--navy), #08466f);
+  border: 2px solid rgba(221, 169, 85, 0.94);
+  border-radius: 999px;
+  color: #fff;
   gap: 2px;
-  height: 52px !important;
+  height: 52px;
   min-width: 128px;
   padding: 0 16px 0 19px;
-  width: auto !important;
+  width: auto;
 }
 
 .floating-reservation span {
@@ -1962,18 +2021,31 @@ a {
 
   .floating-quick {
     bottom: 18px;
-    gap: 12px;
+    gap: 10px;
     right: 16px;
   }
 
-  .floating-quick button,
-  .floating-quick a {
+  .floating-expand {
+    gap: 9px;
+  }
+
+  .floating-action {
+    min-height: 48px;
+    min-width: 92px;
+    padding: 0 13px;
+  }
+
+  .floating-action span {
+    font-size: 13px;
+  }
+
+  .floating-toggle {
     height: 58px;
     width: 58px;
   }
 
   .floating-reservation {
-    height: 48px !important;
+    height: 48px;
     min-width: 116px;
     padding: 0 14px 0 17px;
   }
