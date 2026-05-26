@@ -377,7 +377,7 @@ function Summary() {
             <div><strong>228</strong><span>총 세대수</span></div>
             <div><strong>15</strong><span>총 동수</span></div>
             <div><strong>84~101㎡</strong><span>주택형</span></div>
-            <div><strong>2026</strong><span>자료 기준</span></div>
+            <div><strong>즉시</strong><span>입주 가능</span></div>
           </div>
         </div>
         <div className="summary-media">
