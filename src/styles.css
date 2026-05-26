@@ -171,14 +171,19 @@ a {
 
 .benefit-banner {
   background:
-    linear-gradient(180deg, #f5f8fa 0%, #ffffff 100%);
-  padding: clamp(54px, 7vw, 92px) clamp(18px, 5vw, 72px);
+    radial-gradient(circle at 14% 18%, rgba(189, 145, 77, 0.1), transparent 28%),
+    linear-gradient(180deg, #fbfcfd 0%, #ffffff 100%);
+  padding: clamp(46px, 6vw, 78px) clamp(18px, 5vw, 72px);
 }
 
 .benefit-banner img {
-  border-radius: 12px;
-  box-shadow: 0 28px 70px rgba(7, 42, 70, 0.16);
+  border: 0;
+  border-radius: 0;
+  box-shadow: none;
+  display: block;
   margin: 0 auto;
+  -webkit-mask-image: linear-gradient(90deg, transparent 0%, #000 4%, #000 96%, transparent 100%);
+  mask-image: linear-gradient(90deg, transparent 0%, #000 4%, #000 96%, transparent 100%);
   max-width: min(100%, 1120px);
   width: 100%;
 }
@@ -919,17 +924,42 @@ a {
 
 .lead {
   align-items: stretch;
-  background: var(--navy-900);
+  background:
+    radial-gradient(circle at 16% 76%, rgba(210, 165, 89, 0.22), transparent 30%),
+    radial-gradient(circle at 72% 18%, rgba(24, 106, 145, 0.28), transparent 34%),
+    linear-gradient(135deg, #031827 0%, #052a45 52%, #021522 100%);
   color: #fff;
   display: grid;
   gap: clamp(38px, 6vw, 74px);
   grid-template-columns: minmax(0, 0.95fr) minmax(360px, 0.65fr);
+  overflow: hidden;
   padding: clamp(70px, 8vw, 104px) clamp(24px, 7vw, 118px);
+  position: relative;
+}
+
+.lead::before {
+  background:
+    linear-gradient(90deg, rgba(3, 24, 39, 0.92), rgba(3, 24, 39, 0.64)),
+    url("/assets/sea-mountain-panorama.jpg?v=20260526094252") center / cover;
+  content: "";
+  inset: 0;
+  opacity: 0.18;
+  position: absolute;
+}
+
+.lead > * {
+  position: relative;
+  z-index: 1;
 }
 
 .lead h2 {
   color: #fff;
   max-width: 820px;
+}
+
+.lead-copy {
+  align-self: center;
+  min-width: 0;
 }
 
 .lead-copy p {
@@ -948,12 +978,48 @@ a {
 
 .lead-points span {
   align-items: center;
-  border: 1px solid rgba(255, 255, 255, 0.2);
   color: rgba(255, 255, 255, 0.84);
   display: inline-flex;
   gap: 8px;
   min-height: 42px;
   padding: 0 15px;
+}
+
+.lead-points span + span {
+  border-left: 1px solid rgba(255, 255, 255, 0.25);
+}
+
+.lead-benefit-visual {
+  margin: clamp(30px, 4vw, 46px) 0 0;
+  max-width: 780px;
+  overflow: visible;
+  position: relative;
+}
+
+.lead-benefit-visual::before {
+  background:
+    radial-gradient(circle at 18% 70%, rgba(242, 197, 111, 0.26), transparent 28%),
+    linear-gradient(90deg, rgba(2, 21, 35, 0.44), transparent 18%, transparent 78%, rgba(2, 21, 35, 0.52));
+  content: "";
+  inset: -18px -20px;
+  pointer-events: none;
+  position: absolute;
+  z-index: 1;
+}
+
+.lead-benefit-visual img {
+  border: 0;
+  border-radius: 0;
+  box-shadow: none;
+  display: block;
+  filter: drop-shadow(0 24px 44px rgba(0, 0, 0, 0.28));
+  height: clamp(300px, 29vw, 420px);
+  -webkit-mask-image: radial-gradient(ellipse at center, #000 58%, rgba(0, 0, 0, 0.92) 76%, transparent 100%);
+  mask-image: radial-gradient(ellipse at center, #000 58%, rgba(0, 0, 0, 0.92) 76%, transparent 100%);
+  object-fit: cover;
+  object-position: 50% 46%;
+  position: relative;
+  width: 100%;
 }
 
 .lead-form {
@@ -2003,6 +2069,11 @@ a {
     padding-top: 92px;
   }
 
+  .benefit-banner img {
+    -webkit-mask-image: none;
+    mask-image: none;
+  }
+
   .section,
   .value-band,
   .lead {
@@ -2059,6 +2130,41 @@ a {
     min-height: 320px;
   }
 
+  .lead {
+    gap: 28px;
+    padding-bottom: 56px;
+    padding-top: 62px;
+  }
+
+  .lead-points {
+    gap: 10px 0;
+  }
+
+  .lead-points span {
+    padding: 0 12px 0 0;
+  }
+
+  .lead-points span + span {
+    border-left: 0;
+  }
+
+  .lead-benefit-visual {
+    margin-top: 24px;
+    max-width: 100%;
+  }
+
+  .lead-benefit-visual::before {
+    inset: -10px -8px;
+  }
+
+  .lead-benefit-visual img {
+    filter: drop-shadow(0 18px 32px rgba(0, 0, 0, 0.24));
+    height: min(124vw, 640px);
+    -webkit-mask-image: radial-gradient(ellipse at center, #000 68%, rgba(0, 0, 0, 0.88) 84%, transparent 100%);
+    mask-image: radial-gradient(ellipse at center, #000 68%, rgba(0, 0, 0, 0.88) 84%, transparent 100%);
+    object-fit: contain;
+  }
+
   .media-caption {
     bottom: 16px;
     font-size: 13px;
@@ -2095,6 +2201,10 @@ a {
 
   .lead {
     grid-template-columns: 1fr;
+  }
+
+  .lead-benefit-visual {
+    max-width: 680px;
   }
 
   .schedule-grid {

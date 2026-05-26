@@ -836,6 +836,12 @@ function LeadSection() {
           <span><CalendarDays size={18} /> 방문 상담 예약</span>
           <span><ShieldCheck size={18} /> 개인정보 동의 후 접수</span>
         </div>
+        <figure className="lead-benefit-visual">
+          <img
+            src="/assets/sokcho-benefits-banner.png?v=20260526"
+            alt="속초 중앙하이츠 THE 228 계약금 0원, 잔금 30% 3년 유예, 즉시 입주 가능, 발코니 확장비 무상, 세컨드 홈 특례혜택 안내"
+          />
+        </figure>
       </div>
       <form className="lead-form" onSubmit={handleSubmit}>
         <label>
