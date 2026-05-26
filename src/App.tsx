@@ -48,6 +48,21 @@ type VisitTimeOption = {
   disabled?: boolean;
 };
 
+type UnitSummaryItem = {
+  label: string;
+  value: string;
+  note?: string;
+};
+
+type UnitPlanInfo = {
+  label: string;
+  title: string;
+  body: string;
+  households: string;
+  image: string;
+  summary: UnitSummaryItem[];
+};
+
 const navItems = [
   { label: "사업안내", href: "#summary" },
   { label: "입지안내", href: "#premium" },
@@ -118,16 +133,21 @@ const lifeCards = [
   },
 ];
 
-const unitPlans: Record<
-  UnitKey,
-  { label: string; title: string; body: string; households: string; image: string }
-> = {
+const unitPlans: Record<UnitKey, UnitPlanInfo> = {
   "84A": {
     label: "84A",
     title: "실사용 약 122.18㎡ 기본형",
     body: "3층 배치, 전용 84.96㎡에 발코니 서비스 면적을 더한 실속형 타입입니다.",
     households: "총 17세대",
     image: "/assets/unit-84a-pdf.jpg?v=20260526-top-safe",
+    summary: [
+      { label: "층", value: "3층" },
+      { label: "세대수", value: "17세대" },
+      { label: "전용면적", value: "84.9649㎡", note: "25.70평" },
+      { label: "공급면적", value: "104.7567㎡", note: "31.69평" },
+      { label: "서비스면적", value: "37.2216㎡", note: "11.26평" },
+      { label: "실사용면적", value: "122.1865㎡", note: "36.96평" },
+    ],
   },
   "84B": {
     label: "84B",
@@ -135,6 +155,14 @@ const unitPlans: Record<
     body: "2층 배치, 발코니와 테라스 서비스 면적을 함께 누리는 확장감 있는 타입입니다.",
     households: "총 17세대",
     image: "/assets/unit-84b-pdf.jpg?v=20260526-top-safe",
+    summary: [
+      { label: "층", value: "2층" },
+      { label: "세대수", value: "17세대" },
+      { label: "전용면적", value: "84.9649㎡", note: "25.70평" },
+      { label: "공급면적", value: "104.7567㎡", note: "31.69평" },
+      { label: "서비스면적", value: "46.5513㎡", note: "14.08평" },
+      { label: "실사용면적", value: "131.5162㎡", note: "39.78평" },
+    ],
   },
   "84C": {
     label: "84C",
@@ -142,6 +170,14 @@ const unitPlans: Record<
     body: "2층 일부 세대에 계획된 희소 타입으로 테라스 활용도를 높인 평면입니다.",
     households: "총 2세대",
     image: "/assets/unit-84c-pdf.jpg?v=20260526-top-safe",
+    summary: [
+      { label: "층", value: "2층" },
+      { label: "세대수", value: "2세대" },
+      { label: "전용면적", value: "84.9649㎡", note: "25.70평" },
+      { label: "공급면적", value: "104.7567㎡", note: "31.69평" },
+      { label: "서비스면적", value: "47.3722㎡", note: "14.33평" },
+      { label: "실사용면적", value: "132.3371㎡", note: "40.03평" },
+    ],
   },
   "84D": {
     label: "84D",
@@ -149,6 +185,14 @@ const unitPlans: Record<
     body: "3층 배치, 넓은 테라스 서비스 면적으로 여유로운 외부공간을 더했습니다.",
     households: "총 27세대",
     image: "/assets/unit-84d-pdf.jpg?v=20260526-top-safe",
+    summary: [
+      { label: "층", value: "3층" },
+      { label: "세대수", value: "27세대" },
+      { label: "전용면적", value: "84.9649㎡", note: "25.70평" },
+      { label: "공급면적", value: "104.7567㎡", note: "31.69평" },
+      { label: "서비스면적", value: "56.0250㎡", note: "16.95평" },
+      { label: "실사용면적", value: "140.9899㎡", note: "42.65평" },
+    ],
   },
   "84E": {
     label: "84E",
@@ -156,6 +200,14 @@ const unitPlans: Record<
     body: "3~4층 배치, 테라스와 다락을 모두 더한 대표 복층 특화 타입입니다.",
     households: "총 46세대",
     image: "/assets/unit-84e-pdf.jpg?v=20260526-top-safe",
+    summary: [
+      { label: "층", value: "3~4층" },
+      { label: "세대수", value: "46세대" },
+      { label: "전용면적", value: "84.9649㎡", note: "25.70평" },
+      { label: "공급면적", value: "104.7567㎡", note: "31.69평" },
+      { label: "서비스면적", value: "156.6839㎡", note: "47.40평" },
+      { label: "실사용면적", value: "241.6488㎡", note: "73.10평" },
+    ],
   },
   "84F": {
     label: "84F",
@@ -163,6 +215,14 @@ const unitPlans: Record<
     body: "1~3층에 고르게 배치된 타입으로 실용적인 발코니 서비스 면적을 갖췄습니다.",
     households: "총 14세대",
     image: "/assets/unit-84f-pdf.jpg?v=20260526-top-safe",
+    summary: [
+      { label: "층", value: "1~3층" },
+      { label: "세대수", value: "14세대" },
+      { label: "전용면적", value: "84.9048㎡", note: "25.68평" },
+      { label: "공급면적", value: "104.9426㎡", note: "31.75평" },
+      { label: "서비스면적", value: "31.3350㎡", note: "9.48평" },
+      { label: "실사용면적", value: "116.2398㎡", note: "35.16평" },
+    ],
   },
   "84G": {
     label: "84G",
@@ -170,6 +230,14 @@ const unitPlans: Record<
     body: "3~4층 배치, 테라스와 다락이 더해져 입체적인 라이프스타일을 담는 타입입니다.",
     households: "총 5세대",
     image: "/assets/unit-84g-pdf.jpg?v=20260526-top-safe",
+    summary: [
+      { label: "층", value: "3~4층" },
+      { label: "세대수", value: "5세대" },
+      { label: "전용면적", value: "84.9048㎡", note: "25.68평" },
+      { label: "공급면적", value: "104.9426㎡", note: "31.75평" },
+      { label: "서비스면적", value: "139.7830㎡", note: "42.28평" },
+      { label: "실사용면적", value: "224.6878㎡", note: "67.97평" },
+    ],
   },
   "93": {
     label: "93",
@@ -177,6 +245,14 @@ const unitPlans: Record<
     body: "1층 배치, 전용 93.68㎡에 발코니 서비스 면적을 더한 여유형 타입입니다.",
     households: "총 19세대",
     image: "/assets/unit-93-pdf.jpg?v=20260526-top-safe",
+    summary: [
+      { label: "층", value: "1층" },
+      { label: "세대수", value: "19세대" },
+      { label: "전용면적", value: "93.6819㎡", note: "28.34평" },
+      { label: "공급면적", value: "114.9213㎡", note: "34.76평" },
+      { label: "서비스면적", value: "38.9616㎡", note: "11.79평" },
+      { label: "실사용면적", value: "132.6435㎡", note: "40.12평" },
+    ],
   },
   "98": {
     label: "98",
@@ -184,6 +260,14 @@ const unitPlans: Record<
     body: "2층 배치, 넓어진 주거 면적과 테라스 서비스 면적이 조화를 이루는 타입입니다.",
     households: "총 27세대",
     image: "/assets/unit-98-pdf.jpg?v=20260526-top-safe",
+    summary: [
+      { label: "층", value: "2층" },
+      { label: "세대수", value: "27세대" },
+      { label: "전용면적", value: "98.8419㎡", note: "29.90평" },
+      { label: "공급면적", value: "121.0783㎡", note: "36.63평" },
+      { label: "서비스면적", value: "63.4646㎡", note: "19.20평" },
+      { label: "실사용면적", value: "162.3065㎡", note: "49.10평" },
+    ],
   },
   "101A": {
     label: "101A",
@@ -191,6 +275,14 @@ const unitPlans: Record<
     body: "1층 배치, 전용 101.31㎡ 기반의 여유로운 공간감과 서비스 면적을 갖췄습니다.",
     households: "총 27세대",
     image: "/assets/unit-101a-pdf.jpg?v=20260526-top-safe",
+    summary: [
+      { label: "층", value: "1층" },
+      { label: "세대수", value: "27세대" },
+      { label: "전용면적", value: "101.3143㎡", note: "30.65평" },
+      { label: "공급면적", value: "127.7227㎡", note: "38.64평" },
+      { label: "서비스면적", value: "44.7428㎡", note: "13.53평" },
+      { label: "실사용면적", value: "146.0571㎡", note: "44.18평" },
+    ],
   },
   "101B": {
     label: "101B",
@@ -198,6 +290,14 @@ const unitPlans: Record<
     body: "1층 배치, 전용 101.30㎡에 넓은 테라스 서비스 면적을 더한 타입입니다.",
     households: "총 27세대",
     image: "/assets/unit-101b-pdf.jpg?v=20260526-top-safe",
+    summary: [
+      { label: "층", value: "1층" },
+      { label: "세대수", value: "27세대" },
+      { label: "전용면적", value: "101.3045㎡", note: "30.64평" },
+      { label: "공급면적", value: "126.5834㎡", note: "38.29평" },
+      { label: "서비스면적", value: "64.3372㎡", note: "19.46평" },
+      { label: "실사용면적", value: "165.6417㎡", note: "50.11평" },
+    ],
   },
 };
 
@@ -578,9 +678,24 @@ function UnitPlan() {
               <img src={unit.image} alt={`${unit.label} 평면도`} />
             ) : (
               <div className="unit-placeholder">
-                <House size={44} />
-                <strong>{unit.label} TYPE</strong>
-                <span>세대 평면 정보</span>
+                <div className="unit-summary-head">
+                  <House size={34} />
+                  <div>
+                    <span>요약정보</span>
+                    <strong>{unit.label} TYPE</strong>
+                  </div>
+                </div>
+                <dl className="unit-summary-grid">
+                  {unit.summary.map((item) => (
+                    <div key={item.label}>
+                      <dt>{item.label}</dt>
+                      <dd>
+                        {item.value}
+                        {item.note && <small>{item.note}</small>}
+                      </dd>
+                    </div>
+                  ))}
+                </dl>
               </div>
             )}
           </div>
