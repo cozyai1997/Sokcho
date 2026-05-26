@@ -21,7 +21,7 @@ import {
 } from "lucide-react";
 import { FormEvent, useEffect, useMemo, useState } from "react";
 
-type UnitKey = "84A" | "84E" | "98" | "101";
+type UnitKey = "84A" | "84B" | "84C" | "84D" | "84E" | "84F" | "84G" | "93" | "98" | "101A" | "101B";
 type LeadSubmission = {
   id: string;
   name: string;
@@ -123,36 +123,86 @@ const unitPlans: Record<
   { label: string; title: string; body: string; households: string; image: string }
 > = {
   "84A": {
-    label: "84㎡ A",
-    title: "편안함까지 빌트인한 세련된 공간",
-    body: "테라스와 팬트리 중심의 실속형 평면으로 일상 동선과 수납 효율을 높였습니다.",
+    label: "84A",
+    title: "실사용 약 122.18㎡ 기본형",
+    body: "3층 배치, 전용 84.96㎡에 발코니 서비스 면적을 더한 실속형 타입입니다.",
     households: "총 17세대",
     image: "/assets/unit-84a-plan.jpg",
   },
+  "84B": {
+    label: "84B",
+    title: "실사용 약 131.51㎡ 테라스형",
+    body: "2층 배치, 발코니와 테라스 서비스 면적을 함께 누리는 확장감 있는 타입입니다.",
+    households: "총 17세대",
+    image: "/assets/unit-84b-plan.jpg",
+  },
+  "84C": {
+    label: "84C",
+    title: "실사용 약 132.33㎡ 테라스형",
+    body: "2층 일부 세대에 계획된 희소 타입으로 테라스 활용도를 높인 평면입니다.",
+    households: "총 2세대",
+    image: "/assets/unit-84b-plan.jpg",
+  },
+  "84D": {
+    label: "84D",
+    title: "실사용 약 140.98㎡ 와이드형",
+    body: "3층 배치, 넓은 테라스 서비스 면적으로 여유로운 외부공간을 더했습니다.",
+    households: "총 27세대",
+    image: "/assets/unit-84b-plan.jpg",
+  },
   "84E": {
-    label: "84㎡ E",
-    title: "취향을 더하는 다락 특화 평면",
-    body: "다락 공간과 개성 있는 입체 동선으로 가족의 라이프스타일을 넓게 담습니다.",
+    label: "84E",
+    title: "실사용 약 241.64㎡ 다락 특화형",
+    body: "3~4층 배치, 테라스와 다락을 모두 더한 대표 복층 특화 타입입니다.",
     households: "총 46세대",
     image: "/assets/unit-84e-loft.jpg",
   },
+  "84F": {
+    label: "84F",
+    title: "실사용 약 116.23㎡ 저층형",
+    body: "1~3층에 고르게 배치된 타입으로 실용적인 발코니 서비스 면적을 갖췄습니다.",
+    households: "총 14세대",
+    image: "/assets/unit-84a-plan.jpg",
+  },
+  "84G": {
+    label: "84G",
+    title: "실사용 약 224.68㎡ 다락 특화형",
+    body: "3~4층 배치, 테라스와 다락이 더해져 입체적인 라이프스타일을 담는 타입입니다.",
+    households: "총 5세대",
+    image: "/assets/unit-84e-loft.jpg",
+  },
+  "93": {
+    label: "93",
+    title: "실사용 약 132.64㎡ 중대형",
+    body: "1층 배치, 전용 93.68㎡에 발코니 서비스 면적을 더한 여유형 타입입니다.",
+    households: "총 19세대",
+    image: "/assets/unit-98-plan.jpg",
+  },
   "98": {
-    label: "98㎡",
-    title: "심플한 모더니즘의 여유",
-    body: "넓어진 주방과 거실, 팬트리 구성을 통해 깔끔한 생활감을 완성합니다.",
+    label: "98",
+    title: "실사용 약 162.30㎡ 테라스형",
+    body: "2층 배치, 넓어진 주거 면적과 테라스 서비스 면적이 조화를 이루는 타입입니다.",
     households: "총 27세대",
     image: "/assets/unit-98-plan.jpg",
   },
-  "101": {
-    label: "101㎡",
-    title: "라이프스타일에 맞춘 최적화 공간",
-    body: "지상층과 지하층을 아우르는 입체 평면으로 프라이빗한 주거 가치를 제안합니다.",
-    households: "A/B 타입",
+  "101A": {
+    label: "101A",
+    title: "실사용 약 146.05㎡ 대형 타입",
+    body: "1층 배치, 전용 101.31㎡ 기반의 여유로운 공간감과 서비스 면적을 갖췄습니다.",
+    households: "총 27세대",
+    image: "/assets/unit-101-plan.jpg",
+  },
+  "101B": {
+    label: "101B",
+    title: "실사용 약 165.64㎡ 대형 타입",
+    body: "1층 배치, 전용 101.30㎡에 넓은 테라스 서비스 면적을 더한 타입입니다.",
+    households: "총 27세대",
     image: "/assets/unit-101-plan.jpg",
   },
 };
 
-const unitOrder: UnitKey[] = ["84A", "84E", "98", "101"];
+const unitOrder: UnitKey[] = ["84A", "84B", "84C", "84D", "84E", "84F", "84G", "93", "98", "101A", "101B"];
+const leadTypeOptions = [...unitOrder, "상담 후 결정"];
 const launchVideoUrl = "https://www.youtube.com/embed/zlkLa8TpfUI?autoplay=1&mute=1&playsinline=1&rel=0";
 const inquiryPhone = "010-7939-7089";
 const inquiryPhoneHref = `tel:${inquiryPhone.replace(/-/g, "")}`;
@@ -631,11 +681,10 @@ function LeadSection() {
         </div>
         <label>
           관심 타입
-          <select name="type" defaultValue="84㎡">
-            <option>84㎡</option>
-            <option>98㎡</option>
-            <option>101㎡</option>
-            <option>상담 후 결정</option>
+          <select name="type" defaultValue="84A">
+            {leadTypeOptions.map((type) => (
+              <option key={type}>{type}</option>
+            ))}
           </select>
         </label>
         <label className="agree">
