@@ -132,6 +132,16 @@ a {
   color: #fff;
 }
 
+.header-phone {
+  gap: 8px;
+  letter-spacing: 0;
+  white-space: nowrap;
+}
+
+.header-phone:hover {
+  background: #0a3556;
+}
+
 .btn {
   gap: 10px;
 }
@@ -157,6 +167,20 @@ a {
   padding-bottom: clamp(72px, 7vw, 104px);
   padding-top: 78px;
   position: relative;
+}
+
+.benefit-banner {
+  background:
+    linear-gradient(180deg, #f5f8fa 0%, #ffffff 100%);
+  padding: clamp(54px, 7vw, 92px) clamp(18px, 5vw, 72px);
+}
+
+.benefit-banner img {
+  border-radius: 12px;
+  box-shadow: 0 28px 70px rgba(7, 42, 70, 0.16);
+  margin: 0 auto;
+  max-width: min(100%, 1120px);
+  width: 100%;
 }
 
 .hero-bg {
@@ -1755,7 +1779,11 @@ a {
   .header-cta {
     font-size: 13px;
     min-height: 40px;
-    padding: 0 14px;
+    padding: 0 12px;
+  }
+
+  .header-phone svg {
+    display: none;
   }
 
   .hero {

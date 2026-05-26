@@ -469,9 +469,10 @@ function Header() {
           </a>
         ))}
       </nav>
-      <button className="header-cta" onClick={() => scrollToHash("#lead")}>
-        방문예약 등록
-      </button>
+      <a className="header-cta header-phone" href={inquiryPhoneHref} aria-label={`전화 상담 ${inquiryPhone}`}>
+        <Phone size={17} />
+        {inquiryPhone}
+      </a>
     </header>
   );
 }
@@ -511,6 +512,17 @@ function Hero() {
           </article>
         ))}
       </div>
+    </section>
+  );
+}
+
+function BenefitsBanner() {
+  return (
+    <section className="benefit-banner" aria-label="속초 중앙하이츠 THE 228 혜택 안내">
+      <img
+        src="/assets/sokcho-benefits-banner.png?v=20260526"
+        alt="속초 중앙하이츠 THE 228 계약금 0원, 잔금 30% 3년 유예, 즉시 입주 가능, 발코니 확장비 무상, 세컨드 홈 특례혜택 안내"
+      />
     </section>
   );
 }
@@ -1174,6 +1186,7 @@ export function App() {
       <Header />
       <main>
         <Hero />
+        <BenefitsBanner />
         <Summary />
         <Premium />
         <ValueSection />
