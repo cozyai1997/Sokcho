@@ -17,7 +17,6 @@ import {
   RefreshCw,
   Share2,
   ShieldCheck,
-  Sparkles,
   Trash2,
   Train,
   X,
@@ -974,15 +973,6 @@ function LeadSection() {
 function FloatingQuick() {
   const [isQuickOpen, setIsQuickOpen] = useState(false);
   const [shareMessage, setShareMessage] = useState("");
-  const [isGiftCta, setIsGiftCta] = useState(false);
-
-  useEffect(() => {
-    const timer = window.setInterval(() => {
-      setIsGiftCta((current) => !current);
-    }, 2800);
-
-    return () => window.clearInterval(timer);
-  }, []);
 
   const handleShare = async () => {
     const shareUrl = window.location.href.split("#")[0];
@@ -1008,8 +998,6 @@ function FloatingQuick() {
 
     window.setTimeout(() => setShareMessage(""), 1800);
   };
-
-  const reservationLabel = isGiftCta ? "사은품증정" : "방문예약";
 
   return (
     <div className={`floating-quick ${isQuickOpen ? "is-open" : ""}`} aria-label="빠른 메뉴">
@@ -1043,13 +1031,13 @@ function FloatingQuick() {
         {isQuickOpen ? <X size={30} /> : <Plus size={32} />}
       </button>
       <button
-        className={`floating-reservation ${isGiftCta ? "is-gift" : ""}`}
+        className="floating-reservation"
         type="button"
         onClick={() => scrollToHash("#lead")}
-        aria-label={reservationLabel}
+        aria-label="방문예약"
       >
-        <span key={reservationLabel}>{reservationLabel}</span>
-        {isGiftCta ? <Sparkles size={18} /> : <ChevronRight size={18} />}
+        <span>방문예약</span>
+        <ChevronRight size={18} />
       </button>
     </div>
   );
