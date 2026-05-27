@@ -132,7 +132,7 @@ const valuableFeatures = [
     label: "OPEN LIVING",
     tone: "green",
     imageSide: "right",
-    images: [{ src: "/assets/valuable-02-living-room.jpg", caption: "거실 이미지" }],
+    images: [{ src: "/assets/valuable-02-living-room.png", caption: "거실 이미지" }],
   },
   {
     number: "03",
@@ -163,6 +163,7 @@ const valuableFeatures = [
     tone: "cyan",
     imageSide: "left",
     images: [
+      { src: "/assets/valuable-05-study.jpg", caption: "서재 이미지" },
       { src: "/assets/valuable-05-duplex-layout.png", caption: "복층 구조 이미지" },
       { src: "/assets/valuable-05-attic-staircase.png", caption: "다락 계단 이미지" },
     ],
