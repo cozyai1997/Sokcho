@@ -130,15 +130,16 @@ a {
 .header-cta {
   background: var(--navy);
   color: #fff;
+  cursor: pointer;
 }
 
-.header-phone {
+.header-video {
   gap: 8px;
   letter-spacing: 0;
   white-space: nowrap;
 }
 
-.header-phone:hover {
+.header-video:hover {
   background: #0a3556;
 }
 
@@ -167,25 +168,6 @@ a {
   padding-bottom: clamp(72px, 7vw, 104px);
   padding-top: 78px;
   position: relative;
-}
-
-.benefit-banner {
-  background:
-    radial-gradient(circle at 14% 18%, rgba(189, 145, 77, 0.1), transparent 28%),
-    linear-gradient(180deg, #fbfcfd 0%, #ffffff 100%);
-  padding: clamp(46px, 6vw, 78px) clamp(18px, 5vw, 72px);
-}
-
-.benefit-banner img {
-  border: 0;
-  border-radius: 0;
-  box-shadow: none;
-  display: block;
-  margin: 0 auto;
-  -webkit-mask-image: linear-gradient(90deg, transparent 0%, #000 4%, #000 96%, transparent 100%);
-  mask-image: linear-gradient(90deg, transparent 0%, #000 4%, #000 96%, transparent 100%);
-  max-width: min(100%, 1120px);
-  width: 100%;
 }
 
 .hero-bg {
@@ -1913,6 +1895,143 @@ a {
   }
 }
 
+.ad-popup {
+  align-items: center;
+  background:
+    radial-gradient(circle at 16% 12%, rgba(51, 122, 255, 0.18), transparent 26%),
+    rgba(1, 7, 20, 0.82);
+  backdrop-filter: blur(5px);
+  display: flex;
+  inset: 0;
+  justify-content: center;
+  overflow: hidden;
+  padding: clamp(8px, 2vw, 22px);
+  position: fixed;
+  z-index: 85;
+}
+
+.ad-popup-panel {
+  background: #03091a;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  border-radius: 14px;
+  box-shadow: 0 34px 90px rgba(0, 0, 0, 0.5);
+  display: flex;
+  flex-direction: column;
+  max-height: calc(100vh - 18px);
+  max-height: calc(100dvh - 18px);
+  max-width: calc(100vw - 18px);
+  overflow: hidden;
+  width: fit-content;
+}
+
+.ad-popup-visual {
+  background: #03091a;
+  flex: 1 1 auto;
+  isolation: isolate;
+  line-height: 0;
+  min-height: 0;
+  overflow: hidden;
+  position: relative;
+}
+
+.ad-popup-visual img {
+  display: block;
+  height: min(calc(100vh - 92px), 960px);
+  height: min(calc(100dvh - 92px), 960px);
+  max-width: calc(100vw - 18px);
+  object-fit: contain;
+  width: auto;
+}
+
+.ad-popup-visual::before,
+.ad-popup-visual::after {
+  content: "";
+  inset: 0;
+  pointer-events: none;
+  position: absolute;
+  z-index: 2;
+}
+
+.ad-popup-visual::before {
+  animation: adSparkle 2.8s linear infinite;
+  background-image:
+    radial-gradient(circle, rgba(255, 255, 255, 0.95) 0 1px, transparent 2px),
+    radial-gradient(circle, rgba(255, 219, 94, 0.9) 0 1.5px, transparent 3px),
+    radial-gradient(circle, rgba(74, 172, 255, 0.72) 0 1px, transparent 2.5px);
+  background-position: 18px 24px, 88px 66px, 142px 18px;
+  background-size: 156px 156px, 190px 190px, 236px 236px;
+  mix-blend-mode: screen;
+  opacity: 0.72;
+}
+
+.ad-popup-visual::after {
+  animation: adShine 3.4s ease-in-out infinite;
+  background: linear-gradient(
+    116deg,
+    transparent 0%,
+    transparent 34%,
+    rgba(255, 255, 255, 0.12) 43%,
+    rgba(255, 255, 255, 0.78) 49%,
+    rgba(255, 215, 96, 0.18) 56%,
+    transparent 66%,
+    transparent 100%
+  );
+  transform: translateX(-125%);
+}
+
+.ad-popup-actions {
+  background: rgba(2, 9, 23, 0.96);
+  box-sizing: border-box;
+  display: grid;
+  gap: 10px;
+  grid-template-columns: 1fr 1fr;
+  padding: 12px;
+  width: 100%;
+}
+
+.ad-popup-actions button {
+  border: 0;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 15px;
+  font-weight: 950;
+  min-height: 48px;
+}
+
+.ad-popup-today {
+  background: rgba(255, 255, 255, 0.92);
+  color: #071a35;
+}
+
+.ad-popup-close {
+  background: linear-gradient(135deg, #f4c341, #e58313);
+  color: #071a35;
+}
+
+@keyframes adSparkle {
+  0%,
+  100% {
+    opacity: 0.34;
+    transform: translateY(0);
+  }
+
+  50% {
+    opacity: 0.86;
+    transform: translateY(-6px);
+  }
+}
+
+@keyframes adShine {
+  0% {
+    transform: translateX(-125%);
+  }
+
+  46%,
+  100% {
+    transform: translateX(125%);
+  }
+}
+
 .video-modal {
   align-items: center;
   background: rgba(2, 14, 24, 0.76);
@@ -2225,7 +2344,7 @@ a {
     padding: 0 12px;
   }
 
-  .header-phone svg {
+  .header-video svg {
     display: none;
   }
 
@@ -2275,11 +2394,6 @@ a {
 
   .summary {
     padding-top: 92px;
-  }
-
-  .benefit-banner img {
-    -webkit-mask-image: none;
-    mask-image: none;
   }
 
   .section,
@@ -2570,6 +2684,35 @@ a {
   .admin-toolbar button,
   .admin-back {
     width: 100%;
+  }
+
+  .ad-popup {
+    align-items: stretch;
+    padding: 0;
+  }
+
+  .ad-popup-panel {
+    border-radius: 0;
+    max-height: 100vh;
+    max-height: 100dvh;
+    width: 100vw;
+  }
+
+  .ad-popup-visual img {
+    height: calc(100vh - 72px);
+    height: calc(100dvh - 72px);
+    max-width: none;
+    width: 100%;
+  }
+
+  .ad-popup-actions {
+    gap: 8px;
+    padding: 10px;
+  }
+
+  .ad-popup-actions button {
+    font-size: 14px;
+    min-height: 52px;
   }
 
   .video-modal {

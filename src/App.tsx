@@ -13,6 +13,7 @@ import {
   MapPin,
   Mountain,
   Phone,
+  PlayCircle,
   Plus,
   RefreshCw,
   Share2,
@@ -360,6 +361,8 @@ const inquiryPhone = "010-7939-7089";
 const inquiryPhoneHref = `tel:${inquiryPhone.replace(/-/g, "")}`;
 const naverMapUrl = "https://naver.me/xFLzjQKa";
 const leadStorageKey = "sokcho-the228-leads";
+const adPopupStorageKey = "sokcho-the228-web-ad-hidden-date";
+const webAdBannerSrc = "/assets/web-ad-banner.png?v=20260527";
 const visitTimeOptions: VisitTimeOption[] = [
   { value: "10:00", label: "오전 10시" },
   { value: "11:00", label: "오전 11시" },
@@ -501,7 +504,23 @@ function scrollToHash(hash: string) {
   element?.scrollIntoView({ behavior: "smooth", block: "start" });
 }
 
-function Header() {
+function getTodayStorageDate() {
+  const today = new Date();
+  const year = today.getFullYear();
+  const month = String(today.getMonth() + 1).padStart(2, "0");
+  const day = String(today.getDate()).padStart(2, "0");
+  return `${year}-${month}-${day}`;
+}
+
+function shouldShowWebAdPopup() {
+  try {
+    return window.localStorage.getItem(adPopupStorageKey) !== getTodayStorageDate();
+  } catch {
+    return true;
+  }
+}
+
+function Header({ onUnitVideoOpen }: { onUnitVideoOpen: () => void }) {
   return (
     <header className="site-header">
       <a className="brand" href="#top" aria-label="속초 중앙하이츠 THE 228 홈">
@@ -518,10 +537,10 @@ function Header() {
           </a>
         ))}
       </nav>
-      <a className="header-cta header-phone" href={inquiryPhoneHref} aria-label={`전화 상담 ${inquiryPhone}`}>
-        <Phone size={17} />
-        {inquiryPhone}
-      </a>
+      <button className="header-cta header-video" type="button" onClick={onUnitVideoOpen} aria-label="유니트 영상 보기">
+        <PlayCircle size={17} />
+        유니트 영상
+      </button>
     </header>
   );
 }
@@ -561,17 +580,6 @@ function Hero() {
           </article>
         ))}
       </div>
-    </section>
-  );
-}
-
-function BenefitsBanner() {
-  return (
-    <section className="benefit-banner" aria-label="속초 중앙하이츠 THE 228 혜택 안내">
-      <img
-        src="/assets/sokcho-benefits-banner.png?v=20260526"
-        alt="속초 중앙하이츠 THE 228 계약금 0원, 잔금 30% 3년 유예, 즉시 입주 가능, 발코니 확장비 무상, 세컨드 홈 특례혜택 안내"
-      />
     </section>
   );
 }
@@ -1274,6 +1282,45 @@ function AdminPage() {
   );
 }
 
+function WebAdPopup({
+  onClose,
+  onHideToday,
+}: {
+  onClose: () => void;
+  onHideToday: () => void;
+}) {
+  return (
+    <div
+      className="ad-popup"
+      role="dialog"
+      aria-modal="true"
+      aria-label="속초 중앙하이츠 THE 228 웹광고 배너"
+      onClick={(event) => {
+        if (event.target === event.currentTarget) {
+          onClose();
+        }
+      }}
+    >
+      <div className="ad-popup-panel">
+        <div className="ad-popup-visual">
+          <img
+            src={webAdBannerSrc}
+            alt="속초 중앙하이츠 THE 228 프리미엄 테라스 하우스 혜택 안내"
+          />
+        </div>
+        <div className="ad-popup-actions">
+          <button type="button" className="ad-popup-today" onClick={onHideToday}>
+            오늘하루보지않기
+          </button>
+          <button type="button" className="ad-popup-close" onClick={onClose}>
+            닫기
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 function LaunchVideoModal({ onClose }: { onClose: () => void }) {
   return (
     <div
@@ -1290,8 +1337,8 @@ function LaunchVideoModal({ onClose }: { onClose: () => void }) {
       <div className="video-modal-panel">
         <div className="video-modal-header">
           <div>
-            <span>THE 228 VIDEO</span>
-            <h2 id="launch-video-title">속초 중앙하이츠 THE 228 영상</h2>
+            <span>UNIT VIDEO</span>
+            <h2 id="launch-video-title">속초 중앙하이츠 THE 228 유니트 영상</h2>
           </div>
           <button className="video-modal-close" type="button" onClick={onClose} aria-label="영상 팝업 닫기">
             <X size={22} />
@@ -1316,7 +1363,8 @@ function LaunchVideoModal({ onClose }: { onClose: () => void }) {
 
 export function App() {
   const [currentHash, setCurrentHash] = useState(() => window.location.hash || "#top");
-  const [showLaunchVideo, setShowLaunchVideo] = useState(() => window.location.hash !== "#admin");
+  const [showAdPopup, setShowAdPopup] = useState(() => window.location.hash !== "#admin" && shouldShowWebAdPopup());
+  const [showLaunchVideo, setShowLaunchVideo] = useState(false);
   const isAdminPage = currentHash === "#admin";
 
   useEffect(() => {
@@ -1324,6 +1372,7 @@ export function App() {
       const nextHash = window.location.hash || "#top";
       setCurrentHash(nextHash);
       if (nextHash === "#admin") {
+        setShowAdPopup(false);
         setShowLaunchVideo(false);
       }
     }
@@ -1333,7 +1382,9 @@ export function App() {
   }, []);
 
   useEffect(() => {
-    if (!showLaunchVideo || isAdminPage) {
+    const hasOpenPopup = showAdPopup || showLaunchVideo;
+
+    if (!hasOpenPopup || isAdminPage) {
       return;
     }
 
@@ -1342,7 +1393,11 @@ export function App() {
 
     function handleKeyDown(event: KeyboardEvent) {
       if (event.key === "Escape") {
-        setShowLaunchVideo(false);
+        if (showAdPopup) {
+          setShowAdPopup(false);
+        } else {
+          setShowLaunchVideo(false);
+        }
       }
     }
 
@@ -1352,7 +1407,16 @@ export function App() {
       document.body.style.overflow = previousOverflow;
       window.removeEventListener("keydown", handleKeyDown);
     };
-  }, [isAdminPage, showLaunchVideo]);
+  }, [isAdminPage, showAdPopup, showLaunchVideo]);
+
+  function handleHideAdToday() {
+    try {
+      window.localStorage.setItem(adPopupStorageKey, getTodayStorageDate());
+    } catch {
+      // The popup can still close even if storage is unavailable.
+    }
+    setShowAdPopup(false);
+  }
 
   if (isAdminPage) {
     return <AdminPage />;
@@ -1360,10 +1424,9 @@ export function App() {
 
   return (
     <>
-      <Header />
+      <Header onUnitVideoOpen={() => setShowLaunchVideo(true)} />
       <main>
         <Hero />
-        <BenefitsBanner />
         <Summary />
         <Premium />
         <ValueSection />
@@ -1373,6 +1436,7 @@ export function App() {
         <LeadSection />
       </main>
       <FloatingQuick />
+      {showAdPopup && <WebAdPopup onClose={() => setShowAdPopup(false)} onHideToday={handleHideAdToday} />}
       {showLaunchVideo && <LaunchVideoModal onClose={() => setShowLaunchVideo(false)} />}
       <footer className="site-footer">
         <div className="footer-inner">
