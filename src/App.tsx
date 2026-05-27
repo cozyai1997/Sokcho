@@ -838,8 +838,8 @@ function LeadSection() {
         </div>
         <figure className="lead-benefit-visual">
           <img
-            src="/assets/sokcho-benefits-banner.png?v=20260526"
-            alt="속초 중앙하이츠 THE 228 계약금 0원, 잔금 30% 3년 유예, 즉시 입주 가능, 발코니 확장비 무상, 세컨드 홈 특례혜택 안내"
+            src="/assets/gift.png?v=20260527"
+            alt="방문 상담만 해도 사은품 증정, 방문 고객 한정 혜택 안내"
           />
         </figure>
       </div>
