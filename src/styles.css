@@ -606,15 +606,6 @@ a {
   margin: 0;
 }
 
-.valuable-head img {
-  border: 1px solid #d8e2e9;
-  border-radius: 999px;
-  height: 68px;
-  object-fit: contain;
-  padding: 8px 18px;
-  width: min(240px, 32vw);
-}
-
 .valuable-hero {
   background: #041522;
   color: #fff;
@@ -2356,12 +2347,6 @@ a {
 
   .valuable-head h2 {
     font-size: clamp(35px, 11vw, 46px);
-  }
-
-  .valuable-head img {
-    height: 56px;
-    padding: 6px 14px;
-    width: 190px;
   }
 
   .valuable-hero {

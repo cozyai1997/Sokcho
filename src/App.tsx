@@ -662,7 +662,6 @@ function MostValuableSection() {
             <span>SOKCHO JUNGANG HEIGHTS THE 228</span>
             <h2 id="valuable-title">THE MOST VALUABLE 05</h2>
           </div>
-          <img src="/assets/Sokcho-logo.png" alt="속초 중앙하이츠 THE 228" />
         </div>
 
         <article className="valuable-hero">
