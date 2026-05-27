@@ -672,12 +672,11 @@ function MostValuableSection() {
           </figure>
           <div className="valuable-hero-copy">
             <span>SOKCHO TERRACE LIFE</span>
-            <h3>속초가 아껴둔 자리,</h3>
-            <p>자연의 여유와 생활 인프라를 함께 누리다.</p>
-            <div className="valuable-index">
-              <strong>01</strong>
-              <em>LANDMARK</em>
-            </div>
+            <h3>자연의 여유와 생활 인프라를 함께 누리다.</h3>
+            <p>
+              속초 최대규모 228세대, 설악과 동해가 어우러진 럭셔리 테라스 하우스.
+              자연의 여유와 도시 인프라를 함께 누리는 프리미엄 라이프를 제공합니다.
+            </p>
           </div>
         </article>
 
