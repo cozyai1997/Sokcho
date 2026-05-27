@@ -11,11 +11,13 @@ import {
   HardHat,
   House,
   MapPin,
+  MessageSquare,
   Mountain,
   Phone,
   PlayCircle,
   Plus,
   RefreshCw,
+  Save,
   Share2,
   ShieldCheck,
   Trash2,
@@ -34,6 +36,10 @@ type LeadSubmission = {
   visitTime?: string;
   createdAt: string;
   source: string;
+  smsStatus?: SmsStatus;
+  smsSentAt?: string | null;
+  smsError?: string | null;
+  smsMessageId?: string | null;
 };
 
 type LeadInput = {
@@ -42,6 +48,16 @@ type LeadInput = {
   type: string;
   visitDate: string;
   visitTime: string;
+};
+
+type SmsStatus = "not_configured" | "pending" | "sent" | "failed" | "skipped";
+
+type SmsSettings = {
+  enabled: boolean;
+  subject: string;
+  bodyTemplate: string;
+  imageId: string;
+  updatedAt?: string;
 };
 
 type VisitTimeOption = {
@@ -78,7 +94,7 @@ const navItems = [
 
 const heroStats = [
   { value: "228", label: "총 세대수", detail: "속초 최대규모 테라스 하우스", icon: Building2 },
-  { value: "15", label: "총 동수", detail: "지하2층~지상4층", icon: House },
+  { value: "14", label: "총 동수", detail: "지하2층~지상4층", icon: House },
   { value: "84~101㎡", label: "주택형", detail: "실속형부터 대형 평면까지", icon: Compass },
   { value: "속초IC 약 1km", label: "교통특권", detail: "광역 접근성 강화", icon: Train },
 ];
@@ -361,8 +377,21 @@ const inquiryPhone = "010-7939-7089";
 const inquiryPhoneHref = `tel:${inquiryPhone.replace(/-/g, "")}`;
 const naverMapUrl = "https://naver.me/xFLzjQKa";
 const leadStorageKey = "sokcho-the228-leads";
+const smsSettingsStorageKey = "sokcho-the228-sms-settings";
 const adPopupStorageKey = "sokcho-the228-web-ad-hidden-date";
 const webAdBannerSrc = "/assets/web-ad-banner.png?v=20260527";
+const defaultSmsBodyTemplate = `안녕하세요, {{name}} 고객님
+속초 중앙하이츠 THE 228 입니다.
+방문 날짜/일정 : {{visitDate}} {{visitTime}}
+모델하우스를 방문하셔서, 해당 문자 메시지를 보여주시면 친절히 안내 및 상담 도와드리겠습니다.
+감사합니다.`;
+const defaultSmsSettings: SmsSettings = {
+  enabled: false,
+  subject: "속초 중앙하이츠 THE 228 방문예약",
+  bodyTemplate: defaultSmsBodyTemplate,
+  imageId: "",
+};
+const smsTemplateVariables = ["{{name}}", "{{phone}}", "{{visitDate}}", "{{visitTime}}", "{{type}}"];
 const visitTimeOptions: VisitTimeOption[] = [
   { value: "10:00", label: "오전 10시" },
   { value: "11:00", label: "오전 11시" },
@@ -388,6 +417,31 @@ function readLocalLeads(): LeadSubmission[] {
 
 function writeLocalLeads(leads: LeadSubmission[]) {
   window.localStorage.setItem(leadStorageKey, JSON.stringify(leads));
+}
+
+function normalizeSmsSettings(value: unknown): SmsSettings {
+  const record = value && typeof value === "object" ? (value as Partial<SmsSettings>) : {};
+
+  return {
+    enabled: Boolean(record.enabled),
+    subject: String(record.subject ?? defaultSmsSettings.subject).trim() || defaultSmsSettings.subject,
+    bodyTemplate: String(record.bodyTemplate ?? defaultSmsSettings.bodyTemplate).trim() || defaultSmsSettings.bodyTemplate,
+    imageId: String(record.imageId ?? "").trim(),
+    updatedAt: record.updatedAt,
+  };
+}
+
+function readLocalSmsSettings(): SmsSettings {
+  try {
+    const raw = window.localStorage.getItem(smsSettingsStorageKey);
+    return raw ? normalizeSmsSettings(JSON.parse(raw)) : defaultSmsSettings;
+  } catch {
+    return defaultSmsSettings;
+  }
+}
+
+function writeLocalSmsSettings(settings: SmsSettings) {
+  window.localStorage.setItem(smsSettingsStorageKey, JSON.stringify(settings));
 }
 
 async function fetchLeads(): Promise<LeadSubmission[]> {
@@ -421,6 +475,10 @@ async function saveLead(input: LeadInput): Promise<LeadSubmission> {
       createdAt: new Date().toISOString(),
       id: crypto.randomUUID(),
       source: "browser-storage",
+      smsStatus: "skipped",
+      smsSentAt: null,
+      smsError: null,
+      smsMessageId: null,
     };
     writeLocalLeads([lead, ...readLocalLeads()]);
     return lead;
@@ -477,14 +535,44 @@ function formatVisitSchedule(lead: LeadSubmission) {
   return schedule || "-";
 }
 
+function getSmsStatusLabel(status?: SmsStatus) {
+  switch (status) {
+    case "sent":
+      return "발송완료";
+    case "failed":
+      return "발송실패";
+    case "pending":
+      return "대기";
+    case "skipped":
+      return "발송안함";
+    case "not_configured":
+    default:
+      return "설정필요";
+  }
+}
+
+function renderSmsPreview(template: string) {
+  const sampleValues: Record<string, string> = {
+    name: "홍길동",
+    phone: "010-0000-0000",
+    visitDate: formatVisitDate(getTodayDateValue()),
+    visitTime: "오전 10시",
+    type: "84A",
+  };
+
+  return template.replace(/\{\{\s*(name|phone|visitDate|visitTime|type)\s*\}\}/g, (_, key: string) => sampleValues[key] ?? "");
+}
+
 function downloadCsv(leads: LeadSubmission[]) {
-  const headers = ["접수일시", "이름", "연락처", "방문 일정", "관심 타입", "저장 위치"];
+  const headers = ["접수일시", "이름", "연락처", "방문 일정", "관심 타입", "문자 상태", "문자 오류", "저장 위치"];
   const rows = leads.map((lead) => [
     formatDateTime(lead.createdAt),
     lead.name,
     lead.phone,
     formatVisitSchedule(lead),
     lead.type,
+    getSmsStatusLabel(lead.smsStatus),
+    lead.smsError ?? "",
     lead.source,
   ]);
   const csv = [headers, ...rows]
@@ -517,6 +605,42 @@ function shouldShowWebAdPopup() {
     return window.localStorage.getItem(adPopupStorageKey) !== getTodayStorageDate();
   } catch {
     return true;
+  }
+}
+
+async function fetchSmsSettings(): Promise<SmsSettings> {
+  try {
+    const response = await fetch("/api/sms-template");
+    if (!response.ok) {
+      throw new Error("API unavailable");
+    }
+    const data = await response.json();
+    return normalizeSmsSettings(data.settings);
+  } catch {
+    return readLocalSmsSettings();
+  }
+}
+
+async function saveSmsSettings(settings: SmsSettings): Promise<SmsSettings> {
+  const normalized = normalizeSmsSettings(settings);
+
+  try {
+    const response = await fetch("/api/sms-template", {
+      body: JSON.stringify(normalized),
+      headers: { "Content-Type": "application/json" },
+      method: "PUT",
+    });
+
+    if (!response.ok) {
+      const data = await response.json().catch(() => null);
+      throw new Error(data?.message ?? "API unavailable");
+    }
+
+    const data = await response.json();
+    return normalizeSmsSettings(data.settings);
+  } catch {
+    writeLocalSmsSettings(normalized);
+    return normalized;
   }
 }
 
@@ -597,7 +721,7 @@ function Summary() {
           </p>
           <div className="summary-metrics">
             <div><strong>228</strong><span>총 세대수</span></div>
-            <div><strong>15</strong><span>총 동수</span></div>
+            <div><strong>14</strong><span>총 동수</span></div>
             <div><strong>84~101㎡</strong><span>주택형</span></div>
             <div><strong>즉시</strong><span>입주 가능</span></div>
           </div>
@@ -1168,6 +1292,10 @@ function AdminPage() {
   const [leads, setLeads] = useState<LeadSubmission[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [adminMessage, setAdminMessage] = useState("");
+  const [smsSettings, setSmsSettings] = useState<SmsSettings>(defaultSmsSettings);
+  const [isSmsLoading, setIsSmsLoading] = useState(true);
+  const [isSmsSaving, setIsSmsSaving] = useState(false);
+  const [smsMessage, setSmsMessage] = useState("");
 
   async function loadLeads() {
     setIsLoading(true);
@@ -1176,6 +1304,16 @@ function AdminPage() {
       setLeads(await fetchLeads());
     } finally {
       setIsLoading(false);
+    }
+  }
+
+  async function loadSmsTemplate() {
+    setIsSmsLoading(true);
+    setSmsMessage("");
+    try {
+      setSmsSettings(await fetchSmsSettings());
+    } finally {
+      setIsSmsLoading(false);
     }
   }
 
@@ -1190,13 +1328,31 @@ function AdminPage() {
     setAdminMessage("접수 내역을 삭제했습니다.");
   }
 
+  async function handleSmsSubmit(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    setIsSmsSaving(true);
+    setSmsMessage("");
+
+    try {
+      const saved = await saveSmsSettings(smsSettings);
+      setSmsSettings(saved);
+      setSmsMessage("문자 설정을 저장했습니다.");
+    } catch (error) {
+      setSmsMessage(error instanceof Error ? error.message : "문자 설정 저장 중 오류가 발생했습니다.");
+    } finally {
+      setIsSmsSaving(false);
+    }
+  }
+
   useEffect(() => {
     void loadLeads();
+    void loadSmsTemplate();
   }, []);
 
   const latestLead = leads[0];
   const today = new Date().toDateString();
   const todayCount = leads.filter((lead) => new Date(lead.createdAt).toDateString() === today).length;
+  const smsPreview = useMemo(() => renderSmsPreview(smsSettings.bodyTemplate), [smsSettings.bodyTemplate]);
 
   return (
     <main className="admin-page">
@@ -1227,6 +1383,80 @@ function AdminPage() {
           </article>
         </div>
 
+        <form className="admin-sms-settings" onSubmit={handleSmsSubmit}>
+          <div className="admin-sms-head">
+            <div>
+              <span className="section-label">SMS</span>
+              <h2><MessageSquare size={22} /> 문자 설정</h2>
+              <p>방문예약 저장 후 고객에게 발송되는 SOLAPI MMS 문구를 관리합니다.</p>
+            </div>
+            <label className="admin-sms-toggle">
+              <input
+                type="checkbox"
+                checked={smsSettings.enabled}
+                onChange={(event) => setSmsSettings((settings) => ({ ...settings, enabled: event.currentTarget.checked }))}
+              />
+              <span>{smsSettings.enabled ? "자동 발송 ON" : "자동 발송 OFF"}</span>
+            </label>
+          </div>
+
+          <div className="admin-sms-grid">
+            <label>
+              제목
+              <input
+                value={smsSettings.subject}
+                maxLength={80}
+                onChange={(event) => setSmsSettings((settings) => ({ ...settings, subject: event.currentTarget.value }))}
+              />
+            </label>
+            <label>
+              MMS imageId
+              <input
+                value={smsSettings.imageId}
+                placeholder="SOLAPI Storage 업로드 후 imageId 입력"
+                maxLength={80}
+                onChange={(event) => setSmsSettings((settings) => ({ ...settings, imageId: event.currentTarget.value }))}
+              />
+            </label>
+          </div>
+
+          <label className="admin-sms-body">
+            본문 템플릿
+            <textarea
+              value={smsSettings.bodyTemplate}
+              rows={8}
+              maxLength={1800}
+              onChange={(event) => setSmsSettings((settings) => ({ ...settings, bodyTemplate: event.currentTarget.value }))}
+            />
+          </label>
+
+          <div className="admin-sms-meta">
+            <div className="admin-sms-vars" aria-label="사용 가능한 변수">
+              {smsTemplateVariables.map((variable) => (
+                <code key={variable}>{variable}</code>
+              ))}
+            </div>
+            <div className="admin-sms-preview">
+              <strong>미리보기</strong>
+              <pre>{smsPreview}</pre>
+            </div>
+          </div>
+
+          <div className="admin-sms-actions">
+            <button
+              type="button"
+              onClick={() => setSmsSettings((settings) => ({ ...settings, bodyTemplate: defaultSmsBodyTemplate }))}
+            >
+              기본 문구
+            </button>
+            <button type="submit" disabled={isSmsSaving || isSmsLoading}>
+              <Save size={17} /> {isSmsSaving ? "저장 중" : "문자 설정 저장"}
+            </button>
+          </div>
+
+          {smsMessage && <p className="admin-message">{smsMessage}</p>}
+        </form>
+
         <div className="admin-toolbar">
           <button type="button" onClick={loadLeads}>
             <RefreshCw size={17} /> 새로고침
@@ -1255,6 +1485,7 @@ function AdminPage() {
                   <th>연락처</th>
                   <th>방문 일정</th>
                   <th>관심 타입</th>
+                  <th>문자 상태</th>
                   <th>저장 위치</th>
                 </tr>
               </thead>
@@ -1266,6 +1497,12 @@ function AdminPage() {
                     <td><a href={`tel:${lead.phone}`}>{lead.phone}</a></td>
                     <td>{formatVisitSchedule(lead)}</td>
                     <td><span className="admin-chip">{lead.type}</span></td>
+                    <td>
+                      <span className={`admin-sms-status ${lead.smsStatus ?? "not_configured"}`}>
+                        {getSmsStatusLabel(lead.smsStatus)}
+                      </span>
+                      {lead.smsError && <small className="admin-sms-error">{lead.smsError}</small>}
+                    </td>
                     <td>{lead.source === "browser-storage" ? "브라우저 임시 저장" : "관리자 페이지 저장"}</td>
                   </tr>
                 ))}
@@ -1445,7 +1682,7 @@ export function App() {
           <dl className="footer-info">
             <div>
               <dt><MapPin size={21} /> 현장주소</dt>
-              <dd>강원도 속초시 장사동 649-12번지 일원</dd>
+              <dd>강원도 속초시 장사동 661</dd>
             </div>
             <div>
               <dt><ShieldCheck size={20} /> 시행수탁자</dt>

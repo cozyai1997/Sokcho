@@ -1,4 +1,5 @@
-import { createClient } from "@supabase/supabase-js";
+import { fetchSmsSettings, sendReservationMms, type SmsStatus } from "./_sms";
+import { getSupabaseClient, readPayload, type VercelRequest, type VercelResponse } from "./_supabase";
 
 type LeadSubmission = {
   id: string;
@@ -9,6 +10,10 @@ type LeadSubmission = {
   visitTime: string;
   createdAt: string;
   source: string;
+  smsStatus: SmsStatus;
+  smsSentAt: string | null;
+  smsError: string | null;
+  smsMessageId: string | null;
 };
 
 type LeadRow = {
@@ -20,6 +25,10 @@ type LeadRow = {
   visit_time: string;
   created_at: string;
   source: string;
+  sms_status: SmsStatus | null;
+  sms_sent_at: string | null;
+  sms_error: string | null;
+  sms_message_id: string | null;
 };
 
 type LeadInput = {
@@ -30,41 +39,16 @@ type LeadInput = {
   visitTime: string;
 };
 
-type VercelRequest = {
-  method?: string;
-  body?: unknown;
-};
-
-type VercelResponse = {
-  status: (code: number) => VercelResponse;
-  json: (payload: unknown) => void;
-  setHeader: (name: string, value: string) => void;
-  end: () => void;
-};
-
 const tableName = "sokcho_the228_leads";
-const selectColumns = "id,name,phone,type,visit_date,visit_time,created_at,source";
+const selectColumns =
+  "id,name,phone,type,visit_date,visit_time,created_at,source,sms_status,sms_sent_at,sms_error,sms_message_id";
 
-function getRequiredEnv(name: string) {
-  const value = process.env[name]?.trim();
-  if (!value) {
-    throw new Error(`${name} 환경변수가 설정되지 않았습니다.`);
+function getErrorMessage(error: unknown) {
+  if (error instanceof Error) {
+    return error.message;
   }
-  return value;
-}
 
-function getSupabaseClient() {
-  return createClient(getRequiredEnv("SUPABASE_URL"), getRequiredEnv("SUPABASE_PUBLISHABLE_KEY"), {
-    auth: {
-      autoRefreshToken: false,
-      persistSession: false,
-    },
-    global: {
-      headers: {
-        "x-sokcho-admin-token": getRequiredEnv("SUPABASE_ADMIN_TOKEN"),
-      },
-    },
-  });
+  return typeof error === "string" ? error : "문자 발송 준비 중 오류가 발생했습니다.";
 }
 
 function toLead(row: LeadRow): LeadSubmission {
@@ -77,11 +61,15 @@ function toLead(row: LeadRow): LeadSubmission {
     visitTime: row.visit_time,
     createdAt: row.created_at,
     source: row.source,
+    smsStatus: row.sms_status ?? "not_configured",
+    smsSentAt: row.sms_sent_at,
+    smsError: row.sms_error,
+    smsMessageId: row.sms_message_id,
   };
 }
 
 function parsePayload(payload: unknown): LeadInput | null {
-  const data = typeof payload === "string" ? parseJson(payload) : payload;
+  const data = readPayload(payload);
   const record = data && typeof data === "object" ? (data as Record<string, unknown>) : {};
   const name = String(record.name ?? "").trim();
   const phone = String(record.phone ?? "").trim();
@@ -94,14 +82,6 @@ function parsePayload(payload: unknown): LeadInput | null {
   }
 
   return { name, phone, type, visitDate, visitTime };
-}
-
-function parseJson(value: string) {
-  try {
-    return JSON.parse(value);
-  } catch {
-    return null;
-  }
 }
 
 export default async function handler(request: VercelRequest, response: VercelResponse) {
@@ -149,7 +129,46 @@ export default async function handler(request: VercelRequest, response: VercelRe
         throw error;
       }
 
-      response.status(201).json({ lead: toLead(data as LeadRow) });
+      const lead = toLead(data as LeadRow);
+      const smsResult = await (async () => {
+        try {
+          const smsSettings = await fetchSmsSettings(supabase);
+          return await sendReservationMms(input, smsSettings);
+        } catch (smsError) {
+          return {
+            status: "failed" as SmsStatus,
+            sentAt: null,
+            error: getErrorMessage(smsError),
+            messageId: null,
+          };
+        }
+      })();
+      const { data: updatedData, error: updateError } = await supabase
+        .from(tableName)
+        .update({
+          sms_status: smsResult.status,
+          sms_sent_at: smsResult.sentAt,
+          sms_error: smsResult.error,
+          sms_message_id: smsResult.messageId,
+        })
+        .eq("id", lead.id)
+        .select(selectColumns)
+        .single();
+
+      if (updateError) {
+        response.status(201).json({
+          lead: {
+            ...lead,
+            smsStatus: smsResult.status,
+            smsSentAt: smsResult.sentAt,
+            smsError: updateError.message || smsResult.error,
+            smsMessageId: smsResult.messageId,
+          },
+        });
+        return;
+      }
+
+      response.status(201).json({ lead: toLead(updatedData as LeadRow) });
       return;
     }
 
