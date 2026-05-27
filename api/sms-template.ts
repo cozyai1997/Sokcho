@@ -5,8 +5,8 @@ import {
   smsSettingsSelectColumns,
   smsSettingsTableName,
   toSmsSettings,
-} from "./_sms";
-import { getSupabaseClient, readPayload, type VercelRequest, type VercelResponse } from "./_supabase";
+} from "./_sms.js";
+import { getSupabaseClient, readPayload, type VercelRequest, type VercelResponse } from "./_supabase.js";
 
 function parseSettingsPayload(payload: unknown) {
   const data = readPayload(payload);

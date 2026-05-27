@@ -1,5 +1,5 @@
-import { fetchSmsSettings, sendReservationMms, type SmsStatus } from "./_sms";
-import { getSupabaseClient, readPayload, type VercelRequest, type VercelResponse } from "./_supabase";
+import { fetchSmsSettings, sendReservationMms, type SmsStatus } from "./_sms.js";
+import { getSupabaseClient, readPayload, type VercelRequest, type VercelResponse } from "./_supabase.js";
 
 type LeadSubmission = {
   id: string;
