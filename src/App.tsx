@@ -123,6 +123,53 @@ const valueCards = [
   },
 ];
 
+const valuableFeatures = [
+  {
+    number: "02",
+    category: "LIVING PREMIUM",
+    title: "모던함과 개방감이 극대화된 거실",
+    body: "높은 천정고와 밝은 채광, 넓은 거실 동선으로 일상에서도 호텔 라운지 같은 여유를 느낄 수 있습니다.",
+    label: "OPEN LIVING",
+    tone: "green",
+    imageSide: "right",
+    images: [{ src: "/assets/living-room-main.jpg", caption: "모델하우스 이미지" }],
+  },
+  {
+    number: "03",
+    category: "TERRACE PREMIUM",
+    title: "삶의 여유로움을 누리는 특별한 공간",
+    body: "테라스와 다락, 옥외 공간을 활용해 가족의 취향에 맞춘 휴식과 취미의 장면을 완성합니다.",
+    label: "TERRACE LIFE",
+    tone: "gold",
+    imageSide: "left",
+    images: [{ src: "/assets/special-space.jpg", caption: "모델하우스 이미지" }],
+  },
+  {
+    number: "04",
+    category: "DINING PREMIUM",
+    title: "주방과 다이닝이 이어지는 생활 중심 공간",
+    body: "주방, 식당, 거실이 자연스럽게 연결되는 구조로 가족의 생활 흐름과 손님맞이까지 고려했습니다.",
+    label: "DINING ROOM",
+    tone: "blue",
+    imageSide: "right",
+    images: [{ src: "/assets/dining-gallery.jpg", caption: "모델하우스 이미지" }],
+  },
+  {
+    number: "05",
+    category: "SPECIAL SPACE",
+    title: "복층 구조가 만드는 프라이빗 라이프",
+    body: "다락과 서재, 계단부까지 입체적으로 활용해 같은 면적에서도 더 넓게 쓰는 공간감을 제공합니다.",
+    label: "LOFT & STUDY",
+    tone: "cyan",
+    imageSide: "left",
+    images: [
+      { src: "/assets/bedroom-gallery.jpg", caption: "모델하우스 이미지" },
+      { src: "/assets/special-space-wide.jpg", caption: "다락 계단 이미지" },
+      { src: "/assets/unit-84e-loft.jpg", caption: "복층 구조 이미지" },
+    ],
+  },
+];
+
 const lifeCards = [
   {
     title: "SPECIAL SPACE",
@@ -601,6 +648,77 @@ function ValueSection() {
         <div><strong>84~101㎡</strong><span>주택형</span></div>
         <div><strong>3면</strong><span>숲세권</span></div>
         <div><strong>THE228</strong><span>브랜드</span></div>
+      </div>
+    </section>
+  );
+}
+
+function MostValuableSection() {
+  return (
+    <section className="most-valuable" id="valuable" aria-labelledby="valuable-title">
+      <div className="valuable-shell">
+        <div className="valuable-head">
+          <div>
+            <span>SOKCHO JUNGANG HEIGHTS THE 228</span>
+            <h2 id="valuable-title">THE MOST VALUABLE 05</h2>
+          </div>
+          <img src="/assets/Sokcho-logo.png" alt="속초 중앙하이츠 THE 228" />
+        </div>
+
+        <article className="valuable-hero">
+          <figure className="valuable-media">
+            <img src="/assets/complex-wide.jpg" alt="속초 중앙하이츠 THE 228 단지 조감도" />
+            <figcaption>CG 이미지</figcaption>
+          </figure>
+          <div className="valuable-hero-copy">
+            <span>HIGH-END PREMIUM</span>
+            <h3>자부심이라는 이름의 랜드마크</h3>
+            <p>
+              속초 최대규모 228세대, 설악과 동해가 어우러진 럭셔리 테라스 하우스.
+              자연의 여유와 도시 인프라를 함께 누리는 프리미엄 라이프를 제안합니다.
+            </p>
+            <div className="valuable-index">
+              <strong>01</strong>
+              <em>LANDMARK</em>
+            </div>
+          </div>
+        </article>
+
+        <div className="valuable-list">
+          {valuableFeatures.map((feature) => (
+            <article
+              className={`valuable-item image-${feature.imageSide} tone-${feature.tone}`}
+              key={feature.number}
+            >
+              <div className="valuable-copy">
+                <span>{feature.category}</span>
+                <h3>{feature.title}</h3>
+                <p>{feature.body}</p>
+                <div className="valuable-small-index">
+                  <strong>{feature.number}</strong>
+                  <em>{feature.label}</em>
+                </div>
+              </div>
+              {feature.images.length === 1 ? (
+                <figure className="valuable-media">
+                  <img src={feature.images[0].src} alt={`${feature.title} 이미지`} />
+                  <figcaption>{feature.images[0].caption}</figcaption>
+                </figure>
+              ) : (
+                <div className="valuable-collage" aria-label={`${feature.title} 이미지 모음`}>
+                  {feature.images.map((image) => (
+                    <figure className="valuable-media" key={image.src}>
+                      <img src={image.src} alt={image.caption} />
+                      <figcaption>{image.caption}</figcaption>
+                    </figure>
+                  ))}
+                </div>
+              )}
+            </article>
+          ))}
+        </div>
+
+        <div className="valuable-footer-strip">SOKCHO JUNGANG HEIGHTS THE 228</div>
       </div>
     </section>
   );
@@ -1254,6 +1372,7 @@ export function App() {
         <Summary />
         <Premium />
         <ValueSection />
+        <MostValuableSection />
         <LifeSection />
         <UnitPlan />
         <LeadSection />
