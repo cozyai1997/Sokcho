@@ -1266,16 +1266,20 @@ export function App() {
 
           <dl className="footer-info">
             <div>
-              <dt><Building2 size={20} /> 현장명</dt>
-              <dd>속초 중앙하이츠 THE228</dd>
+              <dt><MapPin size={21} /> 현장주소</dt>
+              <dd>강원도 속초시 장사동 649-12번지 일원</dd>
             </div>
             <div>
-              <dt><MapPin size={21} /> 현장주소</dt>
-              <dd>강원도 속초시 장사동 일원</dd>
+              <dt><ShieldCheck size={20} /> 시행수탁자</dt>
+              <dd>교보자산신탁(주)</dd>
             </div>
             <div>
               <dt><HardHat size={21} /> 시공</dt>
-              <dd>중앙하이츠</dd>
+              <dd>대신건설(주)</dd>
+            </div>
+            <div>
+              <dt><Building2 size={20} /> 시행위탁자</dt>
+              <dd>천마이엔씨건설(주)</dd>
             </div>
           </dl>
 
