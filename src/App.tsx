@@ -132,7 +132,7 @@ const valuableFeatures = [
     label: "OPEN LIVING",
     tone: "green",
     imageSide: "right",
-    images: [{ src: "/assets/living-room-main.jpg", caption: "모델하우스 이미지" }],
+    images: [{ src: "/assets/valuable-02-living-room.jpg", caption: "거실 이미지" }],
   },
   {
     number: "03",
@@ -142,7 +142,7 @@ const valuableFeatures = [
     label: "TERRACE LIFE",
     tone: "gold",
     imageSide: "left",
-    images: [{ src: "/assets/special-space.jpg", caption: "모델하우스 이미지" }],
+    images: [{ src: "/assets/valuable-03-terrace.png", caption: "테라스 이미지" }],
   },
   {
     number: "04",
@@ -163,9 +163,8 @@ const valuableFeatures = [
     tone: "cyan",
     imageSide: "left",
     images: [
-      { src: "/assets/bedroom-gallery.jpg", caption: "모델하우스 이미지" },
-      { src: "/assets/special-space-wide.jpg", caption: "다락 계단 이미지" },
-      { src: "/assets/unit-84e-loft.jpg", caption: "복층 구조 이미지" },
+      { src: "/assets/valuable-05-duplex-layout.png", caption: "복층 구조 이미지" },
+      { src: "/assets/valuable-05-attic-staircase.png", caption: "다락 계단 이미지" },
     ],
   },
 ];
@@ -705,7 +704,7 @@ function MostValuableSection() {
                   <figcaption>{feature.images[0].caption}</figcaption>
                 </figure>
               ) : (
-                <div className="valuable-collage" aria-label={`${feature.title} 이미지 모음`}>
+                <div className={`valuable-collage image-count-${feature.images.length}`} aria-label={`${feature.title} 이미지 모음`}>
                   {feature.images.map((image) => (
                     <figure className="valuable-media" key={image.src}>
                       <img src={image.src} alt={image.caption} />

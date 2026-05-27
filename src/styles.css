@@ -824,6 +824,14 @@ a {
   grid-row: span 2;
 }
 
+.valuable-collage.image-count-2 {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.valuable-collage.image-count-2 .valuable-media:first-child {
+  grid-row: auto;
+}
+
 .valuable-footer-strip {
   background: #041522;
   color: var(--gold-strong);
