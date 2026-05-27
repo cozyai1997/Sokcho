@@ -671,12 +671,9 @@ function MostValuableSection() {
             <figcaption>CG 이미지</figcaption>
           </figure>
           <div className="valuable-hero-copy">
-            <span>HIGH-END PREMIUM</span>
-            <h3>자부심이라는 이름의 랜드마크</h3>
-            <p>
-              속초 최대규모 228세대, 설악과 동해가 어우러진 럭셔리 테라스 하우스.
-              자연의 여유와 도시 인프라를 함께 누리는 프리미엄 라이프를 제안합니다.
-            </p>
+            <span>SOKCHO TERRACE LIFE</span>
+            <h3>속초가 아껴둔 자리,</h3>
+            <p>자연의 여유와 생활 인프라를 함께 누리다.</p>
             <div className="valuable-index">
               <strong>01</strong>
               <em>LANDMARK</em>
