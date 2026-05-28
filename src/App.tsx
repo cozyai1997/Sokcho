@@ -638,9 +638,9 @@ async function saveSmsSettings(settings: SmsSettings): Promise<SmsSettings> {
 
     const data = await response.json();
     return normalizeSmsSettings(data.settings);
-  } catch {
+  } catch (error) {
     writeLocalSmsSettings(normalized);
-    return normalized;
+    throw error instanceof Error ? error : new Error("문자 설정 저장 중 오류가 발생했습니다.");
   }
 }
 
@@ -1330,18 +1330,34 @@ function AdminPage() {
 
   async function handleSmsSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
+    await persistSmsSettings(smsSettings, "문자 설정을 저장했습니다.", smsSettings);
+  }
+
+  async function persistSmsSettings(nextSettings: SmsSettings, successMessage: string, fallbackSettings: SmsSettings) {
     setIsSmsSaving(true);
     setSmsMessage("");
 
     try {
-      const saved = await saveSmsSettings(smsSettings);
+      const saved = await saveSmsSettings(nextSettings);
       setSmsSettings(saved);
-      setSmsMessage("문자 설정을 저장했습니다.");
+      setSmsMessage(successMessage);
     } catch (error) {
+      setSmsSettings(fallbackSettings);
       setSmsMessage(error instanceof Error ? error.message : "문자 설정 저장 중 오류가 발생했습니다.");
     } finally {
       setIsSmsSaving(false);
     }
+  }
+
+  async function handleSmsEnabledChange(enabled: boolean) {
+    const previousSettings = smsSettings;
+    const nextSettings = { ...smsSettings, enabled };
+    setSmsSettings(nextSettings);
+    await persistSmsSettings(
+      nextSettings,
+      enabled ? "자동 문자 발송을 켰습니다." : "자동 문자 발송을 껐습니다.",
+      previousSettings,
+    );
   }
 
   useEffect(() => {
@@ -1393,8 +1409,11 @@ function AdminPage() {
             <label className="admin-sms-toggle">
               <input
                 type="checkbox"
+                disabled={isSmsSaving || isSmsLoading}
                 checked={smsSettings.enabled}
-                onChange={(event) => setSmsSettings((settings) => ({ ...settings, enabled: event.currentTarget.checked }))}
+                onChange={(event) => {
+                  void handleSmsEnabledChange(event.currentTarget.checked);
+                }}
               />
               <span>{smsSettings.enabled ? "자동 발송 ON" : "자동 발송 OFF"}</span>
             </label>

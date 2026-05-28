@@ -1673,11 +1673,12 @@ a {
   margin: 8px 0 0;
 }
 
-.admin-sms-toggle {
+.admin-sms-settings .admin-sms-toggle {
   align-items: center;
   background: #fff;
   border: 1px solid var(--line);
   color: var(--navy);
+  cursor: pointer;
   display: inline-flex;
   font-size: 14px;
   font-weight: 950;
@@ -1687,6 +1688,15 @@ a {
   white-space: nowrap;
 }
 
+.admin-sms-toggle input {
+  accent-color: var(--navy);
+}
+
+.admin-sms-toggle:has(input:disabled) {
+  cursor: wait;
+  opacity: 0.68;
+}
+
 .admin-sms-grid {
   display: grid;
   gap: 14px;
@@ -1694,7 +1704,7 @@ a {
   margin-top: 20px;
 }
 
-.admin-sms-settings label,
+.admin-sms-settings label:not(.admin-sms-toggle),
 .admin-sms-body {
   color: #3c4e60;
   display: grid;
