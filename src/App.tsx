@@ -1425,7 +1425,10 @@ function AdminPage() {
               <input
                 value={smsSettings.subject}
                 maxLength={80}
-                onChange={(event) => setSmsSettings((settings) => ({ ...settings, subject: event.currentTarget.value }))}
+                onChange={(event) => {
+                  const subject = event.currentTarget.value;
+                  setSmsSettings((settings) => ({ ...settings, subject }));
+                }}
               />
             </label>
             <label>
@@ -1434,7 +1437,10 @@ function AdminPage() {
                 value={smsSettings.imageId}
                 placeholder="SOLAPI Storage 업로드 후 imageId 입력"
                 maxLength={80}
-                onChange={(event) => setSmsSettings((settings) => ({ ...settings, imageId: event.currentTarget.value }))}
+                onChange={(event) => {
+                  const imageId = event.currentTarget.value;
+                  setSmsSettings((settings) => ({ ...settings, imageId }));
+                }}
               />
             </label>
           </div>
@@ -1445,7 +1451,10 @@ function AdminPage() {
               value={smsSettings.bodyTemplate}
               rows={8}
               maxLength={1800}
-              onChange={(event) => setSmsSettings((settings) => ({ ...settings, bodyTemplate: event.currentTarget.value }))}
+              onChange={(event) => {
+                const bodyTemplate = event.currentTarget.value;
+                setSmsSettings((settings) => ({ ...settings, bodyTemplate }));
+              }}
             />
           </label>
 
