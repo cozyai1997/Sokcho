@@ -29,6 +29,7 @@ type SmsSettings = {
 
 const leadsFile = path.resolve(__dirname, "data", "leads.json");
 const smsSettingsFile = path.resolve(__dirname, "data", "sms-template.json");
+const duplicateReservationMessage = "이미 방문예약 접수된 고객입니다.";
 const defaultSmsSettings: SmsSettings = {
   enabled: false,
   subject: "속초 중앙하이츠 THE 228 방문예약",
@@ -81,6 +82,10 @@ async function writeSmsSettings(settings: SmsSettings) {
   await writeFile(smsSettingsFile, JSON.stringify(settings, null, 2), "utf-8");
 }
 
+function normalizePhone(value: string) {
+  return value.replace(/\D/g, "");
+}
+
 function sendJson(response: ServerResponse, status: number, payload: unknown) {
   response.statusCode = status;
   response.setHeader("Content-Type", "application/json; charset=utf-8");
@@ -124,6 +129,15 @@ export default defineConfig({
                 return;
               }
 
+              const leads = await readLeads();
+              const normalizedPhone = normalizePhone(phone);
+              const hasDuplicate = leads.some((lead) => normalizePhone(lead.phone) === normalizedPhone);
+
+              if (hasDuplicate) {
+                sendJson(response, 409, { message: duplicateReservationMessage });
+                return;
+              }
+
               const lead: LeadSubmission = {
                 id: crypto.randomUUID(),
                 name,
@@ -139,15 +153,24 @@ export default defineConfig({
                 smsMessageId: null,
               };
 
-              const leads = await readLeads();
               await writeLeads([lead, ...leads]);
               sendJson(response, 201, { lead });
               return;
             }
 
             if (request.method === "DELETE") {
-              await writeLeads([]);
-              sendJson(response, 200, { leads: [] });
+              const body = await readBody(request);
+              const payload = body ? JSON.parse(body) : {};
+              const ids = Array.isArray(payload.ids) ? payload.ids.map((id: unknown) => String(id)) : [];
+
+              if (ids.length > 0) {
+                const idSet = new Set(ids);
+                await writeLeads((await readLeads()).filter((lead) => !idSet.has(lead.id)));
+                sendJson(response, 200, { deletedIds: ids });
+              } else {
+                await writeLeads([]);
+                sendJson(response, 200, { leads: [] });
+              }
               return;
             }
 

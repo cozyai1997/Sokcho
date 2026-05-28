@@ -1,4 +1,4 @@
-import { fetchSmsSettings, sendReservationMms, type SmsStatus } from "./_sms.js";
+import { fetchSmsSettings, normalizePhone, sendReservationMms, type SmsStatus } from "./_sms.js";
 import { getSupabaseClient, readPayload, type VercelRequest, type VercelResponse } from "./_supabase.js";
 
 type LeadSubmission = {
@@ -39,9 +39,14 @@ type LeadInput = {
   visitTime: string;
 };
 
+type DeleteInput = {
+  ids: string[];
+};
+
 const tableName = "sokcho_the228_leads";
 const selectColumns =
   "id,name,phone,type,visit_date,visit_time,created_at,source,sms_status,sms_sent_at,sms_error,sms_message_id";
+const duplicateReservationMessage = "이미 방문예약 접수된 고객입니다.";
 
 function getErrorMessage(error: unknown) {
   if (error instanceof Error) {
@@ -84,6 +89,36 @@ function parsePayload(payload: unknown): LeadInput | null {
   return { name, phone, type, visitDate, visitTime };
 }
 
+function parseDeletePayload(payload: unknown): DeleteInput {
+  const data = readPayload(payload);
+  const record = data && typeof data === "object" ? (data as Record<string, unknown>) : {};
+  const ids = Array.isArray(record.ids)
+    ? record.ids
+        .map((id) => String(id).trim())
+        .filter((id) => /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(id))
+    : [];
+
+  return { ids: Array.from(new Set(ids)) };
+}
+
+async function hasDuplicatePhone(supabase: ReturnType<typeof getSupabaseClient>, phone: string) {
+  const normalizedPhone = normalizePhone(phone);
+  if (!normalizedPhone) {
+    return false;
+  }
+
+  const { data, error } = await supabase.from(tableName).select("id,phone").limit(2000);
+
+  if (error) {
+    throw error;
+  }
+
+  return (data ?? []).some((row) => {
+    const record = row as Pick<LeadRow, "phone">;
+    return normalizePhone(record.phone) === normalizedPhone;
+  });
+}
+
 export default async function handler(request: VercelRequest, response: VercelResponse) {
   response.setHeader("Content-Type", "application/json; charset=utf-8");
 
@@ -109,6 +144,11 @@ export default async function handler(request: VercelRequest, response: VercelRe
 
       if (!input) {
         response.status(400).json({ message: "필수 입력값이 누락되었습니다." });
+        return;
+      }
+
+      if (await hasDuplicatePhone(supabase, input.phone)) {
+        response.status(409).json({ message: duplicateReservationMessage });
         return;
       }
 
@@ -173,13 +213,18 @@ export default async function handler(request: VercelRequest, response: VercelRe
     }
 
     if (request.method === "DELETE") {
-      const { error } = await supabase.from(tableName).delete().neq("id", "00000000-0000-0000-0000-000000000000");
+      const deleteInput = parseDeletePayload(request.body);
+      const query =
+        deleteInput.ids.length > 0
+          ? supabase.from(tableName).delete().in("id", deleteInput.ids)
+          : supabase.from(tableName).delete().neq("id", "00000000-0000-0000-0000-000000000000");
+      const { error } = await query;
 
       if (error) {
         throw error;
       }
 
-      response.status(200).json({ leads: [] });
+      response.status(200).json({ deletedIds: deleteInput.ids, leads: deleteInput.ids.length > 0 ? undefined : [] });
       return;
     }
 

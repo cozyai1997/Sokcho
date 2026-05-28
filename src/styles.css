@@ -1852,7 +1852,7 @@ a {
 
 .admin-table {
   border-collapse: collapse;
-  min-width: 860px;
+  min-width: 930px;
   width: 100%;
 }
 
@@ -1885,6 +1885,18 @@ a {
   color: var(--navy);
   text-decoration: underline;
   text-underline-offset: 3px;
+}
+
+.admin-select-cell {
+  text-align: center !important;
+  width: 52px;
+}
+
+.admin-select-cell input {
+  accent-color: var(--navy);
+  cursor: pointer;
+  height: 18px;
+  width: 18px;
 }
 
 .admin-chip {

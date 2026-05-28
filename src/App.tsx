@@ -60,6 +60,16 @@ type SmsSettings = {
   updatedAt?: string;
 };
 
+class ApiRequestError extends Error {
+  status: number;
+
+  constructor(message: string, status: number) {
+    super(message);
+    this.name = "ApiRequestError";
+    this.status = status;
+  }
+}
+
 type VisitTimeOption = {
   value: string;
   label: string;
@@ -380,6 +390,7 @@ const leadStorageKey = "sokcho-the228-leads";
 const smsSettingsStorageKey = "sokcho-the228-sms-settings";
 const adPopupStorageKey = "sokcho-the228-web-ad-hidden-date";
 const webAdBannerSrc = "/assets/web-ad-banner.png?v=20260527";
+const duplicateReservationMessage = "이미 방문예약 접수된 고객입니다.";
 const defaultSmsBodyTemplate = `안녕하세요, {{name}} 고객님
 속초 중앙하이츠 THE 228 입니다.
 방문 날짜/일정 : {{visitDate}} {{visitTime}}
@@ -417,6 +428,10 @@ function readLocalLeads(): LeadSubmission[] {
 
 function writeLocalLeads(leads: LeadSubmission[]) {
   window.localStorage.setItem(leadStorageKey, JSON.stringify(leads));
+}
+
+function normalizePhone(value: string) {
+  return value.replace(/\D/g, "");
 }
 
 function normalizeSmsSettings(value: unknown): SmsSettings {
@@ -465,11 +480,24 @@ async function saveLead(input: LeadInput): Promise<LeadSubmission> {
       method: "POST",
     });
     if (!response.ok) {
-      throw new Error("API unavailable");
+      const data = await response.json().catch(() => null);
+      throw new ApiRequestError(data?.message ?? "API unavailable", response.status);
     }
     const data = await response.json();
     return data.lead;
-  } catch {
+  } catch (error) {
+    if (error instanceof ApiRequestError && error.status < 500) {
+      throw error;
+    }
+
+    const localLeads = readLocalLeads();
+    const normalizedPhone = normalizePhone(input.phone);
+    const hasDuplicate = localLeads.some((lead) => normalizePhone(lead.phone) === normalizedPhone);
+
+    if (hasDuplicate) {
+      throw new Error(duplicateReservationMessage);
+    }
+
     const lead: LeadSubmission = {
       ...input,
       createdAt: new Date().toISOString(),
@@ -480,18 +508,28 @@ async function saveLead(input: LeadInput): Promise<LeadSubmission> {
       smsError: null,
       smsMessageId: null,
     };
-    writeLocalLeads([lead, ...readLocalLeads()]);
+    writeLocalLeads([lead, ...localLeads]);
     return lead;
   }
 }
 
-async function clearLeads() {
-  try {
-    const response = await fetch("/api/leads", { method: "DELETE" });
-    if (!response.ok) {
-      throw new Error("API unavailable");
-    }
-  } finally {
+async function deleteLeads(ids?: string[]) {
+  const targetIds = ids?.filter(Boolean) ?? [];
+  const response = await fetch("/api/leads", {
+    body: targetIds.length > 0 ? JSON.stringify({ ids: targetIds }) : undefined,
+    headers: targetIds.length > 0 ? { "Content-Type": "application/json" } : undefined,
+    method: "DELETE",
+  });
+
+  if (!response.ok) {
+    const data = await response.json().catch(() => null);
+    throw new Error(data?.message ?? "접수 내역 삭제 중 오류가 발생했습니다.");
+  }
+
+  if (targetIds.length > 0) {
+    const idSet = new Set(targetIds);
+    writeLocalLeads(readLocalLeads().filter((lead) => !idSet.has(lead.id)));
+  } else {
     writeLocalLeads([]);
   }
 }
@@ -1061,9 +1099,9 @@ function LeadSection() {
       setVisitTime("");
       setDraftVisitTime("");
       form.reset();
-    } catch {
+    } catch (error) {
       setSubmitted(false);
-      setSubmitError("접수 저장 중 오류가 발생했습니다. 잠시 후 다시 시도해 주세요.");
+      setSubmitError(error instanceof Error ? error.message : "접수 저장 중 오류가 발생했습니다. 잠시 후 다시 시도해 주세요.");
     } finally {
       setIsSubmitting(false);
     }
@@ -1290,6 +1328,7 @@ function FloatingQuick() {
 
 function AdminPage() {
   const [leads, setLeads] = useState<LeadSubmission[]>([]);
+  const [selectedLeadIds, setSelectedLeadIds] = useState<Set<string>>(() => new Set());
   const [isLoading, setIsLoading] = useState(true);
   const [adminMessage, setAdminMessage] = useState("");
   const [smsSettings, setSmsSettings] = useState<SmsSettings>(defaultSmsSettings);
@@ -1302,6 +1341,7 @@ function AdminPage() {
     setAdminMessage("");
     try {
       setLeads(await fetchLeads());
+      setSelectedLeadIds(new Set());
     } finally {
       setIsLoading(false);
     }
@@ -1323,9 +1363,54 @@ function AdminPage() {
       return;
     }
 
-    await clearLeads();
-    setLeads([]);
-    setAdminMessage("접수 내역을 삭제했습니다.");
+    try {
+      await deleteLeads();
+      setLeads([]);
+      setSelectedLeadIds(new Set());
+      setAdminMessage("접수 내역을 삭제했습니다.");
+    } catch (error) {
+      setAdminMessage(error instanceof Error ? error.message : "접수 내역 삭제 중 오류가 발생했습니다.");
+    }
+  }
+
+  async function handleDeleteSelected() {
+    const ids = Array.from(selectedLeadIds);
+    if (ids.length === 0) {
+      return;
+    }
+
+    const confirmed = window.confirm(`선택한 ${ids.length}건의 접수 내역을 삭제할까요?`);
+    if (!confirmed) {
+      return;
+    }
+
+    try {
+      await deleteLeads(ids);
+      const idSet = new Set(ids);
+      setLeads((items) => items.filter((lead) => !idSet.has(lead.id)));
+      setSelectedLeadIds(new Set());
+      setAdminMessage(`선택한 ${ids.length}건을 삭제했습니다.`);
+    } catch (error) {
+      setAdminMessage(error instanceof Error ? error.message : "선택 삭제 중 오류가 발생했습니다.");
+    }
+  }
+
+  function toggleLeadSelection(id: string, selected: boolean) {
+    setSelectedLeadIds((current) => {
+      const next = new Set(current);
+
+      if (selected) {
+        next.add(id);
+      } else {
+        next.delete(id);
+      }
+
+      return next;
+    });
+  }
+
+  function toggleAllVisibleLeads(selected: boolean) {
+    setSelectedLeadIds(selected ? new Set(leads.map((lead) => lead.id)) : new Set());
   }
 
   async function handleSmsSubmit(event: FormEvent<HTMLFormElement>) {
@@ -1369,6 +1454,8 @@ function AdminPage() {
   const today = new Date().toDateString();
   const todayCount = leads.filter((lead) => new Date(lead.createdAt).toDateString() === today).length;
   const smsPreview = useMemo(() => renderSmsPreview(smsSettings.bodyTemplate), [smsSettings.bodyTemplate]);
+  const selectedCount = selectedLeadIds.size;
+  const allVisibleSelected = leads.length > 0 && leads.every((lead) => selectedLeadIds.has(lead.id));
 
   return (
     <main className="admin-page">
@@ -1492,6 +1579,9 @@ function AdminPage() {
           <button type="button" onClick={() => downloadCsv(leads)} disabled={leads.length === 0}>
             <Download size={17} /> CSV 다운로드
           </button>
+          <button className="admin-danger" type="button" onClick={handleDeleteSelected} disabled={selectedCount === 0}>
+            <Trash2 size={17} /> 선택 삭제{selectedCount > 0 ? ` ${selectedCount}` : ""}
+          </button>
           <button className="admin-danger" type="button" onClick={handleClear} disabled={leads.length === 0}>
             <Trash2 size={17} /> 전체 삭제
           </button>
@@ -1508,6 +1598,14 @@ function AdminPage() {
             <table className="admin-table">
               <thead>
                 <tr>
+                  <th className="admin-select-cell">
+                    <input
+                      type="checkbox"
+                      aria-label="접수 내역 전체 선택"
+                      checked={allVisibleSelected}
+                      onChange={(event) => toggleAllVisibleLeads(event.currentTarget.checked)}
+                    />
+                  </th>
                   <th>접수일시</th>
                   <th>이름</th>
                   <th>연락처</th>
@@ -1520,6 +1618,14 @@ function AdminPage() {
               <tbody>
                 {leads.map((lead) => (
                   <tr key={lead.id}>
+                    <td className="admin-select-cell">
+                      <input
+                        type="checkbox"
+                        aria-label={`${lead.name} 접수 내역 선택`}
+                        checked={selectedLeadIds.has(lead.id)}
+                        onChange={(event) => toggleLeadSelection(lead.id, event.currentTarget.checked)}
+                      />
+                    </td>
                     <td>{formatDateTime(lead.createdAt)}</td>
                     <td>{lead.name}</td>
                     <td><a href={`tel:${lead.phone}`}>{lead.phone}</a></td>
