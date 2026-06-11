@@ -10,6 +10,7 @@ import {
   Download,
   HardHat,
   House,
+  Mail,
   MapPin,
   MessageSquare,
   Mountain,
@@ -22,6 +23,7 @@ import {
   ShieldCheck,
   Trash2,
   Train,
+  UserRound,
   X,
 } from "lucide-react";
 import { FormEvent, useEffect, useMemo, useState } from "react";
@@ -385,6 +387,8 @@ const leadTypeOptions = [...unitOrder, "상담 후 결정"];
 const launchVideoUrl = "https://www.youtube.com/embed/zlkLa8TpfUI?autoplay=1&mute=1&playsinline=1&rel=0";
 const inquiryPhone = "010-7939-7089";
 const inquiryPhoneHref = `tel:${inquiryPhone.replace(/-/g, "")}`;
+const siteManagerName = "박성식";
+const siteManagerEmail = "xj3131@naver.com";
 const naverMapUrl = "https://naver.me/xFLzjQKa";
 const leadStorageKey = "sokcho-the228-leads";
 const smsSettingsStorageKey = "sokcho-the228-sms-settings";
@@ -1831,6 +1835,15 @@ export function App() {
               <dd>천마이엔씨건설(주)</dd>
             </div>
           </dl>
+
+          <div className="footer-manager" aria-label="사이트 관리자 정보">
+            <span className="footer-manager-title">사이트 관리자</span>
+            <div className="footer-manager-links">
+              <span><UserRound size={17} /> {siteManagerName}</span>
+              <a href={inquiryPhoneHref}><Phone size={17} /> {inquiryPhone}</a>
+              <a href={`mailto:${siteManagerEmail}`}><Mail size={17} /> {siteManagerEmail}</a>
+            </div>
+          </div>
 
           <div className="footer-contact">
             <span>방문예약·문의</span>
